@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Menu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="menu-container">
+        <button id="continueBtn">Continue</button>
+        <button id="newGameBtn">New Game</button>
+        <button id="loadGameBtn">Load Game</button>
+        <button id="saveGameBtn">Save Game</button>
+        <button id="guideBtn">Guide</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main_menu.js') }}"></script>
+</body>
+</html>

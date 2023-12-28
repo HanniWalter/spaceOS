@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Menu</title>
+    {#<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> #}
+</head>
+<body>
+    <div class="player-container">
+    Player: {{ game.player.name }}  Money: {{ game.player.money }} <br>
+    </div>
+    <br>
+    <div class="ships-container">
+    {% for ship in game.player.ships %}
+        ship.name <br>
+    {% endfor %}
+    </div>
+    <br>
+    <div class="actions-container">
+        <button id="menuBtn">Main Menu</button>
+        <button id="newShipBtn">New Ship</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
