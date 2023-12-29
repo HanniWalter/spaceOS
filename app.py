@@ -1,98 +1,10 @@
-import glob
-import json
-from flask import Flask, redirect, url_for, render_template
 
+from flask import Flask, redirect, url_for, render_template, request
+import game_classes
+from game_classes import Game, getSavegames, Spaceship, Player, game
 app = Flask(__name__)
 
-### Game logic ###
-def getSavegames():
-    savegames = []
-    for savegame in glob.glob("resources/savegames/*"):
-        savegames.append(savegame)
-    return savegames
 
-class Spaceship:
-    def __init__(self):
-        self.name = "spaceship1"
-        self.hull = 100
-        self.shield = 100
-        self.weapons = []
-        self.cargo = []
-
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "hull": self.hull,
-            "shield": self.shield,
-            "weapons": self.weapons,
-            "cargo": self.cargo
-        }
-
-    def from_dict(spaceship_dict):
-        spaceship = Spaceship()
-        spaceship.name = spaceship_dict["name"]
-        spaceship.hull = spaceship_dict["hull"]
-        spaceship.shield = spaceship_dict["shield"]
-        spaceship.weapons = spaceship_dict["weapons"]
-        spaceship.cargo = spaceship_dict["cargo"]
-        return spaceship
-    
-class Player:
-    def __init__(self):
-        self.name = "player1"
-        self.spaceships = []
-        self.money = 1000
-    
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "spaceships": [spaceship.to_dict() for spaceship in self.spaceships],
-            "money": self.money
-        }
-    
-    def from_dict(player_dict):
-        player = Player()
-        player.name = player_dict["name"]
-        player.spaceships = [Spaceship.from_dict(spaceship_dict) for spaceship_dict in player_dict["spaceships"]]
-        player.money = player_dict["money"]
-        return player
-
-class Game:
-    def __init__(self):
-        self.initiated = False
-
-    def new_game(self):
-        self.initiated = True
-        self.player = Player()
-
-
-    def load_game(savegame_name):
-        #load game from file
-        with open("resources/savegames/"+savegame_name, "r") as savegame:
-            game.from_dict(json.loads(savegame.read()))
-
-    def save_game(self, savegame_name = "savegame"):
-        #save game to file
-        with open("resources/savegames/"+savegame_name, "w") as savegame:
-            savegame.write(json.dumps(self.to_dict()))
-
-
-    def to_dict(self):
-        if self.initiated:
-            return {
-                "initiated": self.initiated,
-                "player": self.player.to_dict()
-            }
-        else:
-            return {
-                "initiated": self.initiated
-            }
-
-    def from_dict(self,game_dict):
-        self.initiated = game_dict["initiated"]
-        self.player = Player.from_dict(game_dict["player"])
-
-game = Game()
 
 ### Flask routes api ###
 @app.route("/savegames", methods=["GET"])
@@ -122,8 +34,42 @@ def savegame():
     #return success
     return {"success": True}, 201
 
+@app.route("/spaceship", methods=["PUT","GET","DELETE"])
+def spaceship():
+    global game
+    id = request.json["id"]
+    if request.method == "PUT":
+        for spaceship in game.player.spaceships:
+            if int(spaceship.id) == int(id):
+                #update spaceship
+                return {"success": True}, 201
+        #create spaceship
+        game.player.spaceships.append(Spaceship.from_dict(request.json))
+        return {"success": True}, 201
+    elif request.method == "GET":
+        for spaceship in game.player.spaceships:
+            if spaceship.id == id:
+                #get spaceship
+                return spaceship.to_dict()
+        #return error
+        return {"success": False}, 404
+    elif request.method == "DELETE":
+        for spaceship in game.player.spaceships:
+            if spaceship.id == id:
+                #delete spaceship
+                game.player.spaceships.remove(spaceship)
+                return {"success": True}, 201
+        #return error
+        return {"success": False}, 404
 
-
+@app.route("/attach_console/<int:spaceship_id>", methods=["POST"])
+def attach_console(spaceship_id):
+    global game
+    for spaceship in game.player.spaceships:
+        if int(spaceship.id) == spaceship_id:
+            print("attach console", spaceship_id)
+            return {"success": True}, 201
+    return {"success": False}, 404
 ### Flask routes web ###
 @app.route("/")
 def hello_world():
@@ -136,16 +82,30 @@ def main_menu():
 
 @app.route("/main")
 def main():
+    global game
     return render_template("main.html", game=game)
 
 @app.route("/spaceship_creator")
 def spaceship_creator():
     return "<p>Spaceship Creator</p>"
 
-@app.route("/spaceships/")
-def spaceships():
-    return "<p>Spaceships</p>"
-
 @app.route("/spaceships/<int:spaceship_id>")
-def spaceship(spaceship_id):
+def spaceships(spaceship_id):
     return "<p>Spaceship %d</p>" % spaceship_id
+
+@app.route("/ShipDesigner/<int:spaceship_id>")
+def ship_designer(spaceship_id):
+    global game
+    for spaceship in game.player.spaceships:
+        if int(spaceship.id) == spaceship_id:
+            return ship_designer_template(spaceship, new_ship=False)
+    return "Spaceship not found"
+
+@app.route("/ShipDesigner/new")
+def ship_designer_new():
+    return ship_designer_template(Spaceship(), new_ship=True)
+
+def ship_designer_template(spaceship, new_ship):
+    global game
+    return render_template("ship_designer.html",
+                            spaceship=spaceship, game=game,new_ship=new_ship)

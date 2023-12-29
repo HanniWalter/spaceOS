@@ -1,1 +1,1 @@
-{"initiated": true, "player": {"name": "player1", "spaceships": [], "money": 800}}
+{"initiated": true, "player": {"name": "player1", "spaceships": [{"name": "spaceship1", "hull": 10, "shield": 10, "docker_image": "test", "id": 964045}, {"name": "spaceship1", "hull": 10, "shield": 10, "docker_image": "test", "id": 22899}], "money": 1000}}
