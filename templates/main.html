@@ -11,10 +11,27 @@
     Player: {{ game.player.name }}  Money: {{ game.player.money }} <br>
     </div>
     <br>
+    <div class="oss-container">
+    <button id="reloadOssBtn">reload OSs</button>
+    {% for os in game.os_list %}
+    <div class="os-container" id = "{{ os.id }}">
+        {{os.name}} 
+        <button class="reloadOsBtn" >reload</button>
+    </div>  
     <div class="ships-container">
     {% for ship in game.player.spaceships %}
     <div class="ship-container" id = "{{ ship.id }}">
-        {{ ship.id }} | {{ship.name}}  <button class="inspectShipBtn" >inspect</button><button class="modifyShipBtn" >modify</button><button class="consoleShipBtn" >console</button>
+        {{ ship.id }} | {{ship.name}}  
+        <button class="inspectShipBtn" >inspect</button>
+        <button class="modifyShipBtn" >modify</button>
+        
+        {% if ship.started %}
+        <button class="startShipBtn" disabled>started</button>
+        <button class="consoleShipBtn" >console</button>
+        {% else %}
+        <button class="startShipBtn" >start</button>
+        <button class="consoleShipBtn" disabled>console</button>
+        {% endif %}
     </div>
     {% endfor %}
     </div>

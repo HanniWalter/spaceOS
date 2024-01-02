@@ -1,0 +1,6 @@
+WORKDIR /
+#create folder
+RUN mkdir -p /ship
+#create file and write
+RUN echo "no data" > /ship/control
+RUN echo "no data" > /ship/sensor

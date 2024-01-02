@@ -13,7 +13,8 @@ function confirmShip() {
             hull: 10,
             shield: 10,
             id: document.getElementById('shipid').innerHTML,
-            docker_image: "test"
+            operation_system: document.getElementById('os-select').value,
+            
         })
     })
         .then(response => response.json())

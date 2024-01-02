@@ -29,10 +29,27 @@ var containers = document.getElementsByClassName("ship-container");
             })
                 .then(response => response.json())
                 .then(data => {
-                    // Redirect to /main after game is saved
                     if (data.success) {
+                        window.location.href = '/main';
                     } else {
                         alert('Error attaching console');
+                    }
+                });
+        });
+        var startBtn = containers[i].getElementsByClassName("startShipBtn")[0];
+        startBtn.addEventListener('click', function () {
+            fetch('/start_spaceship/' + id, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/main';
+                    } else {
+                        alert('Error starting spaceship');
                     }
                 });
         });

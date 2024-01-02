@@ -12,7 +12,16 @@
     </div>
     <br>
     <div class="ships-container">
-        shipid = {{spaceship.id}};Here would be a lot to customise the ship
+        shipid = {{spaceship.id}}
+        <br>
+        Operating System: 
+        <select id= "os-select">
+            {% for os in oss%}
+                <option value="{{os.name}}">{{os.name}}</option>
+            {% endfor %}
+        </select>
+        <br>
+        Here would be a lot to customise the ship
     </div>
     <br>
     <div class="actions-container">
