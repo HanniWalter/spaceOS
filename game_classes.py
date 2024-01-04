@@ -20,7 +20,7 @@ class Spaceship:
         self.name = "spaceship1"
         self.hull = 100
         self.shield = 100
-        self.operation_system = "test"
+        self.operation_system = docker_manager.get_os_name("test")
         self.started = False
         while True:
             self.id = random.randint(0, 1_000_000)
@@ -33,7 +33,7 @@ class Spaceship:
             "name": self.name,
             "hull": self.hull,
             "shield": self.shield,
-            "operation_system": self.operation_system,
+            "operation_system": self.operation_system.path,
             "id": self.id,
             "started": self.started
         }
@@ -45,7 +45,7 @@ class Spaceship:
         spaceship.name = spaceship_dict["name"]
         spaceship.hull = spaceship_dict["hull"]
         spaceship.shield = spaceship_dict["shield"]
-        spaceship.operation_system = spaceship_dict["operation_system"]
+        spaceship.operation_system = docker_manager.get_os_name(spaceship_dict["operation_system"])
         spaceship.id = int(spaceship_dict["id"])
         if spaceship_dict["started"]:
             spaceship.start()
@@ -56,7 +56,7 @@ class Spaceship:
         if self.started:
             return
         self.started = True
-        os = docker_manager.get_os_name(self.operation_system)
+        os = self.os
         self.container = os.run()
 
     def is_running(self):

@@ -87,7 +87,18 @@ def attach_console(spaceship_id):
         return {"success": True}, 201
     return {"success": False}, 404
 
+@app.route("/reload_oss", methods=["POST"])
+def reload_oss():
+    docker_manager.reload_oss()
+    return {"success": True}, 201
 
+@app.route("/build_os/<int:os_id>", methods=["POST"])
+def build_os(os_id):
+    os = docker_manager.get_os_id(int(os_id))
+    if os:
+        os.build_image()
+        return {"success": True}, 201
+    return {"success": False}, 404
 ### Flask routes web ###
 
 
@@ -105,7 +116,7 @@ def main_menu():
 @app.route("/main")
 def main():
     global game
-    return render_template("main.html", game=game)
+    return render_template("main.html",oss = docker_manager.oss, game=game)
 
 
 @app.route("/spaceship_creator")

@@ -13,23 +13,38 @@
     <br>
     <div class="oss-container">
     <button id="reloadOssBtn">reload OSs</button>
-    {% for os in game.os_list %}
-    <div class="os-container" id = "{{ os.id }}">
-        {{os.name}} 
-        <button class="reloadOsBtn" >reload</button>
+    {% for os in oss %}
+    <div class="os-container" id = {{ os.id }}>
+        {{os.name}} |
+        has image {{ os.has_image() }} |
+        {% if os.has_image() %}
+        <button class="buildOsBtn" >rebuild</button>
+        {% else %}
+        <button class="buildOsBtn" >build</button>
+        {% endif %}
     </div>  
+    {% endfor %}
     <div class="ships-container">
     {% for ship in game.player.spaceships %}
     <div class="ship-container" id = "{{ ship.id }}">
-        {{ ship.id }} | {{ship.name}}  
+        {{ ship.id }} | {{ship.name}} |
+        os: {{ ship.operation_system.name }} |
+        {% if ship.started %}
+        started
+        {% else %}
+        not started
+        {% endif %} 
         <button class="inspectShipBtn" >inspect</button>
         <button class="modifyShipBtn" >modify</button>
         
         {% if ship.started %}
         <button class="startShipBtn" disabled>started</button>
         <button class="consoleShipBtn" >console</button>
-        {% else %}
+        {% elif ship.operation_system.has_image() %}
         <button class="startShipBtn" >start</button>
+        <button class="consoleShipBtn" disabled>console</button>
+        {% else %}
+        <button class="startShipBtn" disabled>start</button>
         <button class="consoleShipBtn" disabled>console</button>
         {% endif %}
     </div>
