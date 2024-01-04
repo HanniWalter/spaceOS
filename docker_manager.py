@@ -131,8 +131,6 @@ def get_os_name(name):
     return None
 
 def get_os_id(id):
-    print(id)
-    print([os.id for os in oss])
     for os in oss:
         if int(os.id) == (id):
             return os

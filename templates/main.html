@@ -28,7 +28,7 @@
     {% for ship in game.player.spaceships %}
     <div class="ship-container" id = "{{ ship.id }}">
         {{ ship.id }} | {{ship.name}} |
-        os: {{ ship.operation_system.name }} |
+        os: {{ ship.operating_system.name }} |
         {% if ship.started %}
         started
         {% else %}
@@ -40,7 +40,7 @@
         {% if ship.started %}
         <button class="startShipBtn" disabled>started</button>
         <button class="consoleShipBtn" >console</button>
-        {% elif ship.operation_system.has_image() %}
+        {% elif ship.operating_system.has_image() %}
         <button class="startShipBtn" >start</button>
         <button class="consoleShipBtn" disabled>console</button>
         {% else %}
