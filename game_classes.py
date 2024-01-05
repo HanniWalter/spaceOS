@@ -3,6 +3,7 @@ import json
 import random
 import docker_manager
 import threading
+import time
 
 ### Game logic ###
 
@@ -107,6 +108,8 @@ class Game:
     def __init__(self):
         self.initiated = False
         self.time = 0
+        self.lock = threading.Lock()
+
 
     def new_game(self):
         self.player = Player()
@@ -137,8 +140,27 @@ class Game:
         self.player = Player.from_dict(game_dict["player"])
         self.initiated = game_dict["initiated"]
 
-    def update(self):
-        pass
+    def update(self, delta: float):
+        self.time += delta
+        print(1/delta, self.time)
 
 
 game = Game()
+#in seconds
+
+def game_loop():
+    running_time = -1
+    while True:
+        with game.lock:
+            if game.initiated:
+                if running_time == -1:
+                    running_time = time.time()
+                else:
+                    time_ = time.time()
+                    diff = time_ - running_time
+                    running_time = time_
+                    game.update(diff)
+
+        time.sleep(1/120)
+
+threading.Thread(target=game_loop).start()
