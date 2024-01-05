@@ -2,7 +2,7 @@
 
 from flask import Flask, redirect, url_for, render_template, request
 import game_classes
-from game_classes import Game, getSavegames, Spaceship, Player, game, docker_manager
+from game_classes import Game, getSavegames, Spaceship,game, docker_manager
 app = Flask(__name__)
 
 
@@ -29,8 +29,7 @@ def newgame():
 @app.route("/loadgame", methods=["POST"])
 def loadgame():
     with game.lock:
-
-        game = Game.load_game("savegame")
+        game.load_game("savegame")
         # return success
         return {"success": True}, 201
 
@@ -125,14 +124,8 @@ def main_menu():
 
 @app.route("/main")
 def main():
-    global game
     with game.lock:
         return render_template("main.html",oss = docker_manager.oss, game=game)
-
-
-@app.route("/spaceship_creator")
-def spaceship_creator():
-    return "<p>Spaceship Creator</p>"
 
 
 @app.route("/spaceships/<int:spaceship_id>")
@@ -144,7 +137,6 @@ def spaceships(spaceship_id):
 
 @app.route("/ShipDesigner/<int:spaceship_id>")
 def ship_designer(spaceship_id):
-    global game
     with game.lock:
         spaceship = game.player.get_spaceship(spaceship_id)
         if spaceship:
@@ -159,7 +151,5 @@ def ship_designer_new():
 
 
 def ship_designer_template(spaceship, new_ship):
-    global game
-    with game.lock:
         return render_template("ship_designer.html",
                            spaceship=spaceship, game=game, new_ship=new_ship, oss=docker_manager.oss)

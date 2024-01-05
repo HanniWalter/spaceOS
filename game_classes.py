@@ -77,6 +77,16 @@ class Spaceship:
             return
         docker_manager.attach_console(self.container)
 
+    def update_spaceship(self, delta: float):
+        if not self.started:
+            return
+        assert self.container, "Container not found"
+        sensor = "sensor update" + game.time
+
+        control = docker_manager.read_control(self.container)
+        docker_manager.write_sensor(self.container, sensor)
+        #        docker_manager.update_container(self.container, delta)
+
 class Player:
     def __init__(self):
         self.name = "player1"
@@ -115,10 +125,10 @@ class Game:
         self.player = Player()
         self.initiated = True
 
-    def load_game(savegame_name):
+    def load_game(self,savegame_name):
         # load game from file
         with open("resources/savegames/"+savegame_name, "r") as savegame:
-            game.from_dict(json.loads(savegame.read()))
+            self.from_dict(json.loads(savegame.read()))
 
     def save_game(self, savegame_name="savegame"):
         # save game to file
@@ -146,7 +156,6 @@ class Game:
 
 
 game = Game()
-#in seconds
 
 def game_loop():
     running_time = -1
