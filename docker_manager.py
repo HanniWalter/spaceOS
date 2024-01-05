@@ -5,7 +5,8 @@ import os as hostos
 import io
 import shutil
 import random
-
+import tarfile
+from io import BytesIO
 #with open("resources/settings.yaml", "r") as f:
 #    settings = yaml.safe_load(f)["settings"]
     
@@ -136,6 +137,39 @@ def get_os_id(id):
             return os
     return None
 
+def read_from_container(container,dir, filename):
+    if not container:
+        return None
+    if not is_container_running(container):
+        return None
+    archive_data,_ = container.get_archive(dir+filename)
+    archive_bytes = b"".join(archive_data)
+    with tarfile.open(fileobj=BytesIO(archive_bytes), mode='r') as tar:
+        # Assuming there is only one file in the archive
+        file_info = tar.getmembers()[0]
+        file_content = tar.extractfile(file_info).read()
+        file_content = file_content.decode("utf-8")
+        return file_content
+        
+def write_to_container(container, content: str, dir: str, filename: str):
+    if not container:
+        return None
+    if not is_container_running(container):
+        return None
+    """ content should be a string """
+    stream = io.BytesIO(content.encode())
+
+    # Creating a tar archive with a single file containing the provided content
+    with tarfile.open(fileobj=stream, mode='w|') as tar:
+        # Creating a TarInfo object for the file
+        info = tarfile.TarInfo(name=filename)
+        info.size = len(content)
+        
+        # Adding the file to the archive
+        tar.addfile(info, io.BytesIO(content.encode()))
+
+    # Putting the archive into the container with the complete destination path
+    container.put_archive(dir, stream.getvalue())
 
 reload_oss()
 

@@ -81,11 +81,13 @@ class Spaceship:
         if not self.started:
             return
         assert self.container, "Container not found"
-        sensor = "sensor update" + game.time
+        sensor = {
+            "update_time": game.time,
+        }
 
-        control = docker_manager.read_control(self.container)
-        docker_manager.write_sensor(self.container, sensor)
-        #        docker_manager.update_container(self.container, delta)
+        control = docker_manager.read_from_container(self.container, dir="/ship/", filename="control")
+        docker_manager.write_to_container(container=self.container,content=json.dumps(sensor),  dir="/ship/", filename="sensor")
+        print(control)
 
 class Player:
     def __init__(self):
@@ -113,13 +115,16 @@ class Player:
             if int(spaceship.id) == int(spaceship_id):
                 return spaceship
         return None
+    
+    def update(self, delta: float):
+        for spaceship in self.spaceships:
+            spaceship.update_spaceship(delta)
 
 class Game:
     def __init__(self):
         self.initiated = False
         self.time = 0
         self.lock = threading.Lock()
-
 
     def new_game(self):
         self.player = Player()
@@ -152,6 +157,7 @@ class Game:
 
     def update(self, delta: float):
         self.time += delta
+        self.player.update(delta)
         print(1/delta, self.time)
 
 
@@ -170,6 +176,6 @@ def game_loop():
                     running_time = time_
                     game.update(diff)
 
-        time.sleep(1/120)
+        time.sleep(1)
 
 threading.Thread(target=game_loop).start()
