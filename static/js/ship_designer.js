@@ -13,7 +13,7 @@ function confirmShip() {
             hull: 10,
             shield: 10,
             id: document.getElementById('shipid').innerHTML,
-            operation_system: document.getElementById('os-select').value,
+            operating_system: document.getElementById('os-select').value,
             
         })
     })

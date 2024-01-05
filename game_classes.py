@@ -2,6 +2,7 @@ import glob
 import json
 import random
 import docker_manager
+import threading
 
 ### Game logic ###
 
@@ -56,7 +57,7 @@ class Spaceship:
         if self.started:
             return
         self.started = True
-        os = self.os
+        os = self.operating_system
         self.container = os.run()
 
     def is_running(self):
@@ -74,7 +75,6 @@ class Spaceship:
             print("Container not found")
             return
         docker_manager.attach_console(self.container)
-
 
 class Player:
     def __init__(self):
@@ -103,10 +103,10 @@ class Player:
                 return spaceship
         return None
 
-
 class Game:
     def __init__(self):
         self.initiated = False
+        self.time = 0
 
     def new_game(self):
         self.player = Player()
@@ -136,6 +136,9 @@ class Game:
     def from_dict(self, game_dict):
         self.player = Player.from_dict(game_dict["player"])
         self.initiated = game_dict["initiated"]
+
+    def update(self):
+        pass
 
 
 game = Game()

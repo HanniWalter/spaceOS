@@ -47,22 +47,21 @@ for (var i = 0; i < oss_container.length; i++) {
 
 var containers = document.getElementsByClassName("ship-container");
     for (var i = 0; i < containers.length; i++) {
+        const id = containers[i].id;
+
         //for every ship-container, add event listener
         
         //get child button of class inspectShipBtn
         var inspectBtn = containers[i].getElementsByClassName("inspectShipBtn")[0];
         inspectBtn.addEventListener('click', function () {
-            var id = containers[i].id;
             alert("Inspecting " + id);
         });
         var modifyBtn = containers[i].getElementsByClassName("modifyShipBtn")[0];
         modifyBtn.addEventListener('click', function () {
-            var id = containers[i].id;
             window.location.href = '/ShipDesigner/' + id;
         });
         var consoleBtn = containers[i].getElementsByClassName("consoleShipBtn")[0];
         consoleBtn.addEventListener('click', function () {
-            var id = containers[i].id;
             fetch('/attach_console/' + id, {
                 method: 'POST',
                 headers: {
@@ -80,7 +79,6 @@ var containers = document.getElementsByClassName("ship-container");
         });
         var startBtn = containers[i].getElementsByClassName("startShipBtn")[0];
         startBtn.addEventListener('click', function () {
-            var id = containers[i].id;
             fetch('/start_spaceship/' + id, {
                 method: 'POST',
                 headers: {
