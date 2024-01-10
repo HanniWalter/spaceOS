@@ -105,7 +105,7 @@ def build_os(os_id):
     with game.lock:
         os = docker_manager.get_os_id(int(os_id))
         if os:
-            os.build_image()
+            os.build_image(force=True)
             return {"success": True}, 201
         return {"success": False}, 404
 ### Flask routes web ###

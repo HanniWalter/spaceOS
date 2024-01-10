@@ -21,11 +21,11 @@ document.getElementById('reloadOssBtn').addEventListener('click', function () {
 document.getElementById('newShipBtn').addEventListener('click', function () {
     window.location.href = '/ShipDesigner/new';
 });
-var oss_container = document.getElementsByClassName('os-container');
-for (var i = 0; i < oss_container.length; i++) {
+var os_containers = document.getElementsByClassName('os-container');
+for (var i = 0; i < os_containers.length; i++) {
     
-    var buildOsBtn = oss_container[i].getElementsByClassName('buildOsBtn')[0];
-    var id = oss_container[i].id;
+    var buildOsBtn = os_containers[i].getElementsByClassName('buildOsBtn')[0];
+    const id = os_containers[i].id;
     buildOsBtn.addEventListener('click', function () {
         fetch('/build_os/' + id, {
             method: 'POST',
