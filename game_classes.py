@@ -4,6 +4,8 @@ import random
 import docker_manager
 import threading
 import time
+import numpy as np
+import toml
 
 ### Game logic ###
 
@@ -14,6 +16,22 @@ def getSavegames():
         savegames.append(savegame)
     return savegames
 
+class Thruster:
+    def __init__(self, relative_position, direction, power):
+        self.relative_position = relative_position
+        self.direction = direction
+        self.power = power
+    
+    def to_dict(self):
+        return {
+            "relative_position": self.relative_position.tolist(),
+            "direction": self.direction.tolist(),
+            "power": self.power
+        }
+
+    def from_dict(thruster_dict):
+        thruster = Thruster(np.array(thruster_dict["relative_position"]), np.array(thruster_dict["direction"]), thruster_dict["power"])
+        return thruster
 
 class Spaceship:
     def __init__(self):
@@ -24,10 +42,19 @@ class Spaceship:
         self.shield = 100
         self.operating_system = docker_manager.get_os_name("test")
         self.started = False
+        self.location = np.array([0,0,0])
+        self.rotation = np.array([0,0,0])
+        self.thrusters = []
+        self.test_thrusters()
         while True:
             self.id = random.randint(0, 1_000_000)
             if not self.id in [spaceship.id for spaceship in game.player.spaceships]:
                 break
+
+    def test_thrusters(self):
+        self.thrusters.append(Thruster(np.array([-1,0,0]), np.array([0,0,0]), 10))
+        self.thrusters.append(Thruster(np.array([0,1,0]), np.array([0,0,0]), 1))
+        self.thrusters.append(Thruster(np.array([0,-1,0]), np.array([0,0,0]), 1))
 
     def to_dict(self):
 
@@ -37,7 +64,10 @@ class Spaceship:
             "shield": self.shield,
             "operating_system": self.operating_system.path,
             "id": self.id,
-            "started": self.started
+            "started": self.started,
+            "location": self.location.tolist(),
+            "rotation": self.rotation.tolist(),
+            "thrusters": [thruster.to_dict() for thruster in self.thrusters]
         }
 
     def from_dict(spaceship_dict):
@@ -52,6 +82,13 @@ class Spaceship:
         if spaceship_dict["started"]:
             spaceship.start()
         spaceship.started = spaceship_dict["started"]
+        if "location" in spaceship_dict:
+            spaceship.location = np.array(spaceship_dict["location"])
+        if "rotation" in spaceship_dict:
+
+            spaceship.rotation = np.array(spaceship_dict["rotation"])
+        if "thrusters" in spaceship_dict:
+            spaceship.thrusters = [Thruster.from_dict(thruster_dict) for thruster_dict in spaceship_dict["thrusters"]]
         return spaceship
 
     def start(self):
@@ -77,7 +114,7 @@ class Spaceship:
             return
         docker_manager.attach_console(self.container)
 
-    def update_spaceship(self, delta: float):
+    def update(self, delta: float):
         if not self.started:
             return
         assert self.container, "Container not found"
@@ -85,8 +122,11 @@ class Spaceship:
             "update_time": game.time,
         }
 
-        control = docker_manager.read_from_container(self.container, dir="/ship/", filename="control")
+        plain_control = docker_manager.read_from_container(self.container, dir="/ship/", filename="control")
         docker_manager.write_to_container(container=self.container,content=json.dumps(sensor),  dir="/ship/", filename="sensor")
+        if plain_control.strip() == "no data":
+            return
+        control = toml.loads(plain_control)
         print(control)
 
 class Player:
@@ -118,7 +158,7 @@ class Player:
     
     def update(self, delta: float):
         for spaceship in self.spaceships:
-            spaceship.update_spaceship(delta)
+            spaceship.update(delta)
 
 class Game:
     def __init__(self):
@@ -158,8 +198,6 @@ class Game:
     def update(self, delta: float):
         self.time += delta
         self.player.update(delta)
-        print(1/delta, self.time)
-
 
 game = Game()
 
@@ -175,7 +213,6 @@ def game_loop():
                     diff = time_ - running_time
                     running_time = time_
                     game.update(diff)
-
         time.sleep(1)
 
 threading.Thread(target=game_loop).start()
