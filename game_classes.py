@@ -17,12 +17,14 @@ def getSavegames():
     return savegames
 
 class Game_Object:
-    def __init__(self, silent = False):
+    def __init__(self, game_ref = None, silent = False):
         if silent:
             return
+        if not game_ref:
+            game_ref = game
         self.id = game.objectcount
-        game.objectcount += 1
-        game.objects[self.id] = self
+        game_ref.objectcount += 1
+        game_ref.objects[self.id] = self
     #todo:
     #add here a lot of work for example it is not possible to change the os
     def apply_template(self, template):
@@ -33,8 +35,8 @@ class Game_Object:
             self.__dict__[key] = template[key]
 
 class Thruster(Game_Object):
-    def __init__(self,):
-        super().__init__(silent=False)
+    def __init__(self,game_ref = None, silent=False):
+        super().__init__(game_ref,silent)
     
     def new(relative_position, direction, power):
         r = Thruster()
@@ -44,10 +46,10 @@ class Thruster(Game_Object):
         return r
 
 class Spaceship(Game_Object):
-    def __init__(self, silent=False):
+    def __init__(self,game_ref = None, silent=False):
         if not game.initiated:
             return
-        super().__init__(silent=silent)
+        super().__init__(game_ref,silent=silent)
         self.name = "spaceship1"
         self.hull = 100
         self.shield = 100
@@ -104,8 +106,8 @@ class Spaceship(Game_Object):
         print(control)
 
 class Player(Game_Object):
-    def __init__(self, silent = False):
-        super().__init__(silent=silent)
+    def __init__(self,game_ref = None, silent = False):
+        super().__init__(game_ref= game_ref,silent=silent)
         self.name = "player1"
         self.spaceships = []
         self.money = 1000
@@ -221,7 +223,7 @@ def from_dict(d, game_ref, no_ref = False, only_ref = False):
             r = game_ref.objects[d["value"]["id"]["value"]]
         else:
             cls = d["class"]
-            r = globals()[cls]()
+            r = globals()[cls](game_ref)
         for key in d["value"]:
             r.__dict__[key] = from_dict(d["value"][key], game_ref, no_ref=no_ref, only_ref=only_ref) 
         return r

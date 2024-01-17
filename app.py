@@ -2,9 +2,10 @@
 
 from flask import Flask, redirect, url_for, render_template, request
 import game_classes
-from game_classes import Game, getSavegames, Spaceship,game, docker_manager
+from game_classes import Game, getSavegames, Spaceship, docker_manager
 app = Flask(__name__)
 
+game = game_classes.game
 
 ### Flask routes api ###
 @app.route("/savegames", methods=["GET"])
@@ -20,7 +21,6 @@ def savegames():
 
 @app.route("/newgame", methods=["POST"])
 def newgame():
-    with game.lock:
         game.new_game()
         # return success
         return {"success": True}, 201
@@ -28,10 +28,11 @@ def newgame():
 
 @app.route("/loadgame", methods=["POST"])
 def loadgame():
-    with game.lock:
-        game_classes.load_game("savegame")
-        # return success
-        return {"success": True}, 201
+    global game
+    game_classes.load_game("savegame")
+    game = game_classes.game
+    # return success
+    return {"success": True}, 201
 
 
 @app.route("/savegame", methods=["POST"])
@@ -50,7 +51,6 @@ def spaceship():
         id = request.json["id"]
         if request.method == "PUT":
             # create spaceship
-            print(request.json["id"])
             if request.json["id"] == "":
                 print("new spaceship")
                 ship = Spaceship()
