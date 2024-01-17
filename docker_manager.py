@@ -124,6 +124,8 @@ def get_os_folder(folder):
     oss.append(os)
     return oss[-1]
 
+get_os_path = get_os_folder
+
 
 def get_os_name(name):
     for os in oss:

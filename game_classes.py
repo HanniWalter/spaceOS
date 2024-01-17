@@ -16,27 +16,28 @@ def getSavegames():
         savegames.append(savegame)
     return savegames
 
-class Thruster:
-    def __init__(self, relative_position, direction, power):
-        self.relative_position = relative_position
-        self.direction = direction
-        self.power = power
+class Game_Object:
+    def __init__(self):
+        self.id = game.objectcount
+        game.objectcount += 1
+        game.objects[self.id] = self
+
+class Thruster(Game_Object):
+    def __init__(self,):
+        super().__init__()
     
-    def to_dict(self):
-        return {
-            "relative_position": self.relative_position.tolist(),
-            "direction": self.direction.tolist(),
-            "power": self.power
-        }
+    def new(relative_position, direction, power):
+        r = Thruster()
+        r.relative_position = relative_position
+        r.direction = direction
+        r.power = power
+        return r
 
-    def from_dict(thruster_dict):
-        thruster = Thruster(np.array(thruster_dict["relative_position"]), np.array(thruster_dict["direction"]), thruster_dict["power"])
-        return thruster
-
-class Spaceship:
+class Spaceship(Game_Object):
     def __init__(self):
         if not game.initiated:
             return
+        super().__init__()
         self.name = "spaceship1"
         self.hull = 100
         self.shield = 100
@@ -46,109 +47,59 @@ class Spaceship:
         self.rotation = np.array([0,0,0])
         self.thrusters = []
         self.test_thrusters()
-        while True:
-            self.id = random.randint(0, 1_000_000)
-            if not self.id in [spaceship.id for spaceship in game.player.spaceships]:
-                break
+
 
     def test_thrusters(self):
-        self.thrusters.append(Thruster(np.array([-1,0,0]), np.array([0,0,0]), 10))
-        self.thrusters.append(Thruster(np.array([0,1,0]), np.array([0,0,0]), 1))
-        self.thrusters.append(Thruster(np.array([0,-1,0]), np.array([0,0,0]), 1))
-
-    def to_dict(self):
-
-        return {
-            "name": self.name,
-            "hull": self.hull,
-            "shield": self.shield,
-            "operating_system": self.operating_system.path,
-            "id": self.id,
-            "started": self.started,
-            "location": self.location.tolist(),
-            "rotation": self.rotation.tolist(),
-            "thrusters": [thruster.to_dict() for thruster in self.thrusters]
-        }
-
-    def from_dict(spaceship_dict):
-        if not "started" in spaceship_dict:
-            spaceship_dict["started"] = False
-        spaceship = Spaceship()
-        spaceship.name = spaceship_dict["name"]
-        spaceship.hull = spaceship_dict["hull"]
-        spaceship.shield = spaceship_dict["shield"]
-        spaceship.operating_system = docker_manager.get_os_name(spaceship_dict["operating_system"])
-        spaceship.id = int(spaceship_dict["id"])
-        if spaceship_dict["started"]:
-            spaceship.start()
-        spaceship.started = spaceship_dict["started"]
-        if "location" in spaceship_dict:
-            spaceship.location = np.array(spaceship_dict["location"])
-        if "rotation" in spaceship_dict:
-
-            spaceship.rotation = np.array(spaceship_dict["rotation"])
-        if "thrusters" in spaceship_dict:
-            spaceship.thrusters = [Thruster.from_dict(thruster_dict) for thruster_dict in spaceship_dict["thrusters"]]
-        return spaceship
+        self.thrusters.append(Thruster.new(np.array([-1,0,0]), np.array([0,0,0]), 10))
+        self.thrusters.append(Thruster.new(np.array([0,1,0]), np.array([0,0,0]), 1))
+        self.thrusters.append(Thruster.new(np.array([0,-1,0]), np.array([0,0,0]), 1))
 
     def start(self):
         if self.started:
             return
         self.started = True
         os = self.operating_system
-        self.container = os.run()
+        containers[self.id] = os.run()
 
     def is_running(self):
         if not self.started:
             return False
-        if not self.container:
+        if not containers[self.id]:
             print("Container not found")
             return False
-        return docker_manager.is_container_running(self.container)
+        return docker_manager.is_container_running(containers[self.id])
 
     def attach_console(self):
         if not self.started:
             return
-        if not self.container:
+        container = containers[self.id]
+        if not container:
             print("Container not found")
             return
-        docker_manager.attach_console(self.container)
+        docker_manager.attach_console(container)
 
     def update(self, delta: float):
         if not self.started:
             return
-        assert self.container, "Container not found"
+        container = containers[self.id]
+        assert container, "Container not found"
         sensor = {
             "update_time": game.time,
         }
 
-        plain_control = docker_manager.read_from_container(self.container, dir="/ship/", filename="control")
-        docker_manager.write_to_container(container=self.container,content=json.dumps(sensor),  dir="/ship/", filename="sensor")
+        plain_control = docker_manager.read_from_container(container, dir="/ship/", filename="control")
+        docker_manager.write_to_container(container=container,content=json.dumps(sensor),  dir="/ship/", filename="sensor")
         if plain_control.strip() == "no data":
             return
         control = toml.loads(plain_control)
         print(control)
 
-class Player:
+class Player(Game_Object):
     def __init__(self):
+        super().__init__()
         self.name = "player1"
         self.spaceships = []
         self.money = 1000
-
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "spaceships": [spaceship.to_dict() for spaceship in self.spaceships],
-            "money": self.money
-        }
-
-    def from_dict(player_dict):
-        player = Player()
-        player.name = player_dict["name"]
-        player.spaceships = [Spaceship.from_dict(
-            spaceship_dict) for spaceship_dict in player_dict["spaceships"]]
-        player.money = player_dict["money"]
-        return player
 
     def get_spaceship(self, spaceship_id):
         for spaceship in self.spaceships:
@@ -165,39 +116,144 @@ class Game:
         self.initiated = False
         self.time = 0
         self.lock = threading.Lock()
+        self.objectcount = 0
+        self.objects = {}
 
     def new_game(self):
         self.player = Player()
         self.initiated = True
-
-    def load_game(self,savegame_name):
-        # load game from file
-        with open("resources/savegames/"+savegame_name, "r") as savegame:
-            self.from_dict(json.loads(savegame.read()))
-
-    def save_game(self, savegame_name="savegame"):
-        # save game to file
-        with open("resources/savegames/"+savegame_name, "w") as savegame:
-            savegame.write(json.dumps(self.to_dict()))
-
-    def to_dict(self):
-        if self.initiated:
-            return {
-                "initiated": self.initiated,
-                "player": self.player.to_dict()
-            }
-        else:
-            return {
-                "initiated": self.initiated
-            }
-
-    def from_dict(self, game_dict):
-        self.player = Player.from_dict(game_dict["player"])
-        self.initiated = game_dict["initiated"]
+        self.running = True
 
     def update(self, delta: float):
         self.time += delta
         self.player.update(delta)
+
+def to_dict(obj, forced = False):
+    if isinstance(obj, Game):
+        d = {}
+        d["type"] = "Game"
+        for key in obj.__dict__:
+            if key == "initiated":
+                continue
+            if key == "lock":
+                continue
+            if key == "objects":
+                d[key] = [to_dict(obj, forced=True) for obj in obj.__dict__[key].values()]
+                continue
+            d[key] = to_dict(obj.__dict__[key])
+        return d
+
+    if isinstance(obj, Game_Object):    
+        if forced:
+            d = {}
+            d["type"] = "Game_Object"
+            d["class"] = obj.__class__.__name__
+            d["value"] = {key: to_dict(obj.__dict__[key]) for key in obj.__dict__}
+            return d
+        d = {}
+        d["type"] = "ref"
+        d["id"] = obj.id
+        d["class"] = obj.__class__.__name__
+        return d
+    if isinstance(obj, docker_manager.Operating_System):
+        d = {}
+        d["type"] = "Operating_System"
+        d["value"] = obj.path
+        return d
+    if isinstance(obj, int):
+        d = {}
+        d["type"] = "int"
+        d["value"] = obj
+        return d
+    if isinstance(obj, float):
+        d = {}
+        d["type"] = "float"
+        d["value"] = obj
+        return d
+    if isinstance(obj, str):
+        d = {}
+        d["type"] = "str"
+        d["value"] = obj
+        return d
+    if isinstance(obj, list):
+        d = {}
+        d["type"] = "list"
+        d["value"] = [to_dict(item) for item in obj]
+        return d
+    if isinstance(obj, np.ndarray):
+        d = {}
+        d["type"] = "ndarray"
+        d["value"] = obj.tolist()
+        return d
+    
+    print("unknown type:",type(obj), obj)
+    assert False, "something went wrong"
+
+def from_dict(d, game_ref, no_ref = False, only_ref = False):
+    assert type(d) == dict, "d is not a dict"
+    assert "type" in d, "no type in dict"
+    if d["type"] == "Game":
+        r = Game()
+        for obj in d["objects"]:
+            r.objects[obj["value"]["id"]["value"]] = from_dict(obj,r, no_ref=True)
+        for obj in d["objects"]:
+            r.objects[obj["value"]["id"]["value"]] = from_dict(obj,r, only_ref=True)
+
+        for key in d:
+            if key == "type":
+                continue
+            if key == "objects":
+                continue
+            r.__dict__[key] = from_dict(d[key],r)
+        return r
+    if d["type"] == "Game_Object":
+        if only_ref:
+            r = game_ref.objects[d["value"]["id"]["value"]]
+        else:
+            cls = d["class"]
+            r = globals()[cls]()
+        for key in d["value"]:
+            r.__dict__[key] = from_dict(d["value"][key], game_ref, no_ref=no_ref, only_ref=only_ref) 
+        return r
+    if d["type"] == "ref":
+        if no_ref:
+            return None
+        return game_ref.objects[d["id"]]
+    
+    if d["type"] == "int":
+        return int(d["value"])
+    if d["type"] == "float":
+        return float(d["value"])
+    if d["type"] == "str":
+        return str(d["value"])
+    if d["type"] == "list":
+        return [from_dict(item, game_ref, no_ref) for item in d["value"]]
+    if d["type"] == "Operating_System":
+        return docker_manager.get_os_path(d["value"])
+    if d["type"] == "ndarray":
+        return np.array(d["value"])
+    print(d["type"])
+
+    assert False, "something went wrong"
+
+def game_from_dict(d):
+    global game
+    game = from_dict(d, None)
+
+def load_game(savegame_name):
+    # load game from file
+    with open("resources/savegames/"+savegame_name, "r") as savegame:
+        d = json.loads(savegame.read())
+        game_from_dict(d)
+
+def save_game(savegame_name):
+    # save game to file
+    with open("resources/savegames/"+savegame_name, "w") as savegame:
+        d = to_dict(game)
+        savegame.write(json.dumps(d))
+
+#{key: id, v: docker_container}
+containers = {}
 
 game = Game()
 
@@ -206,13 +262,34 @@ def game_loop():
     while True:
         with game.lock:
             if game.initiated:
-                if running_time == -1:
-                    running_time = time.time()
-                else:
-                    time_ = time.time()
-                    diff = time_ - running_time
-                    running_time = time_
-                    game.update(diff)
+                if game.stopped:
+                    break
+                if game.running:
+                    if running_time == -1:
+                        running_time = time.time()
+                    else:
+                        time_ = time.time()
+                        diff = time_ - running_time
+                        running_time = time_
+                        game.update(diff)
+
         time.sleep(1)
 
 threading.Thread(target=game_loop).start()
+
+### main 
+if __name__ == "__main__":
+    game.new_game()
+    game.player.spaceships.append(Spaceship())
+    d = to_dict(game)
+    game.running = False
+    game.stopped = True
+    print(len(game.objects))
+    #print(d)
+    
+    #print("###########")
+    game_from_dict(d)
+    print(len(game.objects))
+
+
+

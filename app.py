@@ -12,10 +12,10 @@ def savegames():
     return {"savegames": getSavegames()}
 
 
-@app.route("/game", methods=["GET"])
-def game_data():
-    with game.lock: 
-        return game.to_dict()
+#@app.route("/game", methods=["GET"])
+#def game_data():
+#    with game.lock: 
+#        return game.to_dict()
 
 
 @app.route("/newgame", methods=["POST"])
@@ -29,7 +29,7 @@ def newgame():
 @app.route("/loadgame", methods=["POST"])
 def loadgame():
     with game.lock:
-        game.load_game("savegame")
+        game_classes.load_game("savegame")
         # return success
         return {"success": True}, 201
 
@@ -38,7 +38,7 @@ def loadgame():
 def savegame():
     with game.lock:
         savegame_name = "savegame"
-        game.save_game(savegame_name)
+        game_classes.save_game(savegame_name)
         # return success
         return {"success": True}, 201
 
