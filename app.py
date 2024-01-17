@@ -43,24 +43,30 @@ def savegame():
         return {"success": True}, 201
 
 
-@app.route("/spaceship", methods=["PUT", "GET", "DELETE"])
+@app.route("/spaceship", methods=["PUT", "DELETE"])
 def spaceship():
     global game
     with game.lock:
         id = request.json["id"]
         if request.method == "PUT":
-            for spaceship in game.player.spaceships:
-                if int(spaceship.id) == int(id):
-                    # update spaceship
-                    return {"success": True}, 201
             # create spaceship
-            game.player.spaceships.append(Spaceship.from_dict(request.json))
+            print(request.json["id"])
+            if request.json["id"] == "":
+                print("new spaceship")
+                ship = Spaceship()
+                ship.apply_template(request.json)
+                game.player.spaceships.append(ship)
+            else:
+                print("update spaceship")
+                ship = game.objects[int(request.json["id"])]
+                ship.apply_template(request.json)
+            
             return {"success": True}, 201
-        elif request.method == "GET":
-            for spaceship in game.player.spaceships:
-                if spaceship.id == id:
-                    # get spaceship
-                    return spaceship.to_dict()
+        #elif request.method == "GET":
+        #    for spaceship in game.player.spaceships:
+        #        if spaceship.id == id:
+        #            # get spaceship
+        #            return spaceship.to_dict()
             # return error
             return {"success": False}, 404
         elif request.method == "DELETE":
@@ -147,7 +153,7 @@ def ship_designer(spaceship_id):
 @app.route("/ShipDesigner/new")
 def ship_designer_new():
     with game.lock:
-        return ship_designer_template(Spaceship(), new_ship=True)
+        return ship_designer_template(Spaceship(silent=True), new_ship=True)
 
 
 def ship_designer_template(spaceship, new_ship):

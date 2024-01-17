@@ -17,14 +17,24 @@ def getSavegames():
     return savegames
 
 class Game_Object:
-    def __init__(self):
+    def __init__(self, silent = False):
+        if silent:
+            return
         self.id = game.objectcount
         game.objectcount += 1
         game.objects[self.id] = self
+    #todo:
+    #add here a lot of work for example it is not possible to change the os
+    def apply_template(self, template):
+        for key in template:
+            if key in self.__dict__:
+                if type(self.__dict__[key]) != type(template[key]):
+                    return
+            self.__dict__[key] = template[key]
 
 class Thruster(Game_Object):
     def __init__(self,):
-        super().__init__()
+        super().__init__(silent=False)
     
     def new(relative_position, direction, power):
         r = Thruster()
@@ -34,10 +44,10 @@ class Thruster(Game_Object):
         return r
 
 class Spaceship(Game_Object):
-    def __init__(self):
+    def __init__(self, silent=False):
         if not game.initiated:
             return
-        super().__init__()
+        super().__init__(silent=silent)
         self.name = "spaceship1"
         self.hull = 100
         self.shield = 100
@@ -47,7 +57,6 @@ class Spaceship(Game_Object):
         self.rotation = np.array([0,0,0])
         self.thrusters = []
         self.test_thrusters()
-
 
     def test_thrusters(self):
         self.thrusters.append(Thruster.new(np.array([-1,0,0]), np.array([0,0,0]), 10))
@@ -95,8 +104,8 @@ class Spaceship(Game_Object):
         print(control)
 
 class Player(Game_Object):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, silent = False):
+        super().__init__(silent=silent)
         self.name = "player1"
         self.spaceships = []
         self.money = 1000
@@ -118,6 +127,7 @@ class Game:
         self.lock = threading.Lock()
         self.objectcount = 0
         self.objects = {}
+        self.stopped = False
 
     def new_game(self):
         self.player = Player()
