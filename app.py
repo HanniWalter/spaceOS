@@ -2,10 +2,10 @@
 
 from flask import Flask, redirect, url_for, render_template, request
 import game_classes
-from game_classes import Game, getSavegames, Spaceship, docker_manager
+from game_classes import getSavegames, docker_manager
 app = Flask(__name__)
 
-game = game_classes.game
+game = None
 
 ### Flask routes api ###
 @app.route("/savegames", methods=["GET"])
@@ -21,16 +21,16 @@ def savegames():
 
 @app.route("/newgame", methods=["POST"])
 def newgame():
-        game.new_game()
-        # return success
-        return {"success": True}, 201
+    global game
+    game = game_classes.Game.new_game()
+    # return success
+    return {"success": True}, 201
 
 
 @app.route("/loadgame", methods=["POST"])
 def loadgame():
     global game
-    game_classes.load_game("savegame")
-    game = game_classes.game
+    game = game_classes.Game.load_game("savegame")
     # return success
     return {"success": True}, 201
 
@@ -39,7 +39,7 @@ def loadgame():
 def savegame():
     with game.lock:
         savegame_name = "savegame"
-        game_classes.save_game(savegame_name)
+        game.save_game(savegame_name)
         # return success
         return {"success": True}, 201
 
@@ -53,7 +53,7 @@ def spaceship():
             # create spaceship
             if request.json["id"] == "":
                 print("new spaceship")
-                ship = Spaceship()
+                ship = game_classes.Spaceship(game_ref=game)
                 ship.apply_template(request.json)
                 game.player.spaceships.append(ship)
             else:
@@ -130,6 +130,7 @@ def main_menu():
 
 @app.route("/main")
 def main():
+    global game
     with game.lock:
         return render_template("main.html",oss = docker_manager.oss, game=game)
 
@@ -153,7 +154,7 @@ def ship_designer(spaceship_id):
 @app.route("/ShipDesigner/new")
 def ship_designer_new():
     with game.lock:
-        return ship_designer_template(Spaceship(silent=True), new_ship=True)
+        return ship_designer_template(game_classes.Spaceship(silent=True), new_ship=True)
 
 
 def ship_designer_template(spaceship, new_ship):
