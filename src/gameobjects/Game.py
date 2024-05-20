@@ -10,6 +10,8 @@ import numpy as np
 from src.util import docker_manager
 from src.gameobjects.Player import Player
 from src.gameobjects.Game_Object import Game_Object 
+from src.gameobjects.Spaceship import Spaceship
+from src.gameobjects.Component import Clock
 
 class Game:
     def __init__(self):
@@ -25,6 +27,8 @@ class Game:
         ret = Game()
         ret.player = Player(game_ref=ret)
         ret.initiated = True
+        
+        ret.test_data()
         return ret
 
     def load_game(savegame_name):
@@ -60,6 +64,12 @@ class Game:
 
     def start(self):
         threading.Thread(target=self.loop).start()
+
+    def test_data(self):
+        ship = Spaceship(game_ref=self)
+        self.player.spaceships.append(ship)
+        clock = Clock(parent=ship, game_ref=self)
+        
 
 #for what is forced? 
 #its for saving the top level gameobject, elsewise Game would only be saved as a reference

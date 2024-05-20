@@ -97,8 +97,12 @@ def attach_console_windows(container):
 
 def attach_console_linux(container):
     linux_command = "gnome-terminal -- sh -c"
-    # open cmd and attach to container
+    #check if gnome-terminal is installed
+    if hostos.system(linux_command) != 0:
+        #if not use kubuntu terminal
+        linux_command = "konsole --hold -e"
     
+    # open cmd and attach to container 
     command = "docker exec -it {container} /bin/bash".format(
         container=container.name)
     hostos.system(linux_command+' "' + command+'"')
@@ -165,12 +169,25 @@ def write_to_container(container, content: str, dir: str, filename: str):
         # Creating a TarInfo object for the file
         info = tarfile.TarInfo(name=filename)
         info.size = len(content)
-        
         # Adding the file to the archive
         tar.addfile(info, io.BytesIO(content.encode()))
 
     # Putting the archive into the container with the complete destination path
     container.put_archive(dir, stream.getvalue())
+
+def create_file_in_container(container, dir: str, filename: str):
+    if not container:
+        return None
+    if not is_container_running(container):
+        return None
+    
+    #using touch to create file
+    container.exec_run("mkdir -p {dir}".format(dir=dir))
+
+    path = hostos.path.join(dir, filename)
+
+    command = f"touch {path}"
+    container.exec_run(command)
 
 reload_oss()
 

@@ -17,13 +17,9 @@ class Spaceship(Game_Object):
         self.started = False
         self.location = np.array([0,0,0])
         self.rotation = np.array([0,0,0])
-        self.thrusters = []
-        #self.test_thrusters()
 
-    def test_thrusters(self):
-        self.thrusters.append(Thruster.new(self.game_ref, np.array([-1,0,0]), np.array([0,0,0]), 10))
-        self.thrusters.append(Thruster.new(self.game_ref, np.array([0,1,0]), np.array([0,0,0]), 1))
-        self.thrusters.append(Thruster.new(self.game_ref, np.array([0,-1,0]), np.array([0,0,0]), 1))
+        self.components = []
+        #self.test_thrusters()
 
     def start(self):
         if self.started:
@@ -31,6 +27,10 @@ class Spaceship(Game_Object):
         self.started = True
         os = self.operating_system
         containers[self.id] = os.run()
+
+        for component in self.components:
+            component.create_files()
+            component.on_start()
 
     def is_running(self):
         if not self.started:
@@ -48,6 +48,9 @@ class Spaceship(Game_Object):
             print("Container not found")
             return
         docker_manager.attach_console(container)
+
+    def get_container(self):
+        return containers[self.id]
 
     def update(self, delta: float):
         if not self.started:
