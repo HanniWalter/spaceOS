@@ -58,7 +58,6 @@ def modify_dockerfile(dockerfile):
     with open("resources/dockerfile_attachment", "r") as f:
         additional_content = f.readlines()
     additional_content[-1] = additional_content[-1]+"\n"
-
     with open(dockerfile, "r") as f:
         rawlines = f.readlines()
     rawlines[-1] = rawlines[-1]+"\n"
