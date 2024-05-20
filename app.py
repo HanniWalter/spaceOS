@@ -1,11 +1,24 @@
 
 
 from flask import Flask, redirect, url_for, render_template, request
-import game_classes
-from game_classes import getSavegames, docker_manager
+import glob
+
+from src.gameobjects.Game import Game
+from src.gameobjects.Spaceship import Spaceship
+from src.util import docker_manager
+
+#import game_classes
+#from game_classes import getSavegames, docker_manager
+
 app = Flask(__name__)
 
 game = None
+
+def getSavegames():
+    savegames = []
+    for savegame in glob.glob("resources/savegames/*"):
+        savegames.append(savegame)
+    return savegames
 
 ### Flask routes api ###
 @app.route("/savegames", methods=["GET"])
@@ -22,7 +35,7 @@ def savegames():
 @app.route("/newgame", methods=["POST"])
 def newgame():
     global game
-    game = game_classes.Game.new_game()
+    game = Game.new_game()
     # return success
     return {"success": True}, 201
 
@@ -30,7 +43,7 @@ def newgame():
 @app.route("/loadgame", methods=["POST"])
 def loadgame():
     global game
-    game = game_classes.Game.load_game("savegame")
+    game = Game.load_game("savegame")
     # return success
     return {"success": True}, 201
 
@@ -53,7 +66,7 @@ def spaceship():
             # create spaceship
             if request.json["id"] == "":
                 print("new spaceship")
-                ship = game_classes.Spaceship(game_ref=game)
+                ship = Spaceship(game_ref=game)
                 ship.apply_template(request.json)
                 game.player.spaceships.append(ship)
             else:
@@ -154,7 +167,7 @@ def ship_designer(spaceship_id):
 @app.route("/ShipDesigner/new")
 def ship_designer_new():
     with game.lock:
-        return ship_designer_template(game_classes.Spaceship(silent=True), new_ship=True)
+        return ship_designer_template(Spaceship(silent=True), new_ship=True)
 
 
 def ship_designer_template(spaceship, new_ship):
