@@ -57,14 +57,7 @@ class Spaceship(Game_Object):
             return
         container = containers[self.id]
         assert container, "Container not found"
-        sensor = {
-            "update_time": self.game_ref.time,
-        }
 
-        plain_control = docker_manager.read_from_container(container, dir="/ship/", filename="control")
-        docker_manager.write_to_container(container=container,content=json.dumps(sensor),  dir="/ship/", filename="sensor")
-        if plain_control.strip() == "no data":
-            return
-        control = toml.loads(plain_control)
-        print(control)
+        for component in self.components:
+            component.update(delta)
 

@@ -27,14 +27,24 @@ class Game:
         ret = Game()
         ret.player = Player(game_ref=ret)
         ret.initiated = True
-        
+
+        #remove this lines when not longer in testing
         ret.test_data()
+        ret.continue_game()        
+
         return ret
+
+    def continue_game(self):
+        self.stopped = False
+    
+    def stop_game(self):
+        self.stopped = True
 
     def load_game(savegame_name):
         with open("resources/savegames/"+savegame_name, "r") as savegame:
             d = json.loads(savegame.read())
             return from_dict(d, None)
+
 
     def save_game(self,savegame_name):
         with open("resources/savegames/"+savegame_name, "w") as savegame:
@@ -42,15 +52,19 @@ class Game:
             savegame.write(json.dumps(d))
 
     def update(self, delta: float):
+        print("update game")
         self.time += delta
         self.player.update(delta)
 
     def loop(self):
         running_time = -2
         while True:
+            print("loop")
             with self.lock:
+                print("lock")
                 if self.initiated:
                     if self.stopped:
+                        print("stopped game")
                         break
                     if running_time == -2:
                         running_time = time.time()

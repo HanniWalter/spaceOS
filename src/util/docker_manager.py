@@ -54,10 +54,11 @@ class Operating_System:
         self.container = container
         return container
 
+#at the moment obsolete
 def modify_dockerfile(dockerfile):
-    with open("resources/dockerfile_attachment", "r") as f:
-        additional_content = f.readlines()
-    additional_content[-1] = additional_content[-1]+"\n"
+    #with open("resources/dockerfile_attachment", "r") as f:
+    #    additional_content = f.readlines()
+    #additional_content[-1] = additional_content[-1]+"\n"
     with open(dockerfile, "r") as f:
         rawlines = f.readlines()
     rawlines[-1] = rawlines[-1]+"\n"
@@ -65,7 +66,8 @@ def modify_dockerfile(dockerfile):
     for line in rawlines:                    
         lines.append(line)
         if line.upper().startswith("FROM"):
-            lines += additional_content
+            pass
+    #        lines += additional_content
     with open(dockerfile, "w") as f:
         f.writelines(lines)
     

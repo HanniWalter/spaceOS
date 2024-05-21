@@ -1,5 +1,7 @@
 from src.gameobjects.Game_Object import Game_Object 
 from src.util import docker_manager
+import toml
+
 class Component(Game_Object):
     def __init__(self,parent: Game_Object, game_ref = None, silent = False, creates_logs = False, reads_config = False):
         super().__init__(game_ref, silent)
@@ -19,14 +21,23 @@ class Component(Game_Object):
             docker_manager.create_file_in_container(container, dir=f"/ship/{self.id}/", filename="config")
             docker_manager.write_to_container(container, dir=f"/ship/{self.id}/", filename="config", content="no data")
     def update(self, delta: float):
-        self.write_log()
-        self.config = self.read_config()
+        if self.creates_logs:   
+            self.write_log()
+        if self.reads_config:
+            self.config = self.read_config()
+        print("test update")
 
     def read_config(self):
-        pass
+        container = self.parent.get_container()
+        return docker_manager.read_from_container(container, dir=f"/ship/{self.id}/", filename="config")
 
     def write_log(self):
         sensor = self.log_data()
+        content_toml = toml.dumps(sensor)
+        container = self.parent.get_container()
+        docker_manager.write_to_container(container, dir=f"/ship/{self.id}/", filename="log", content=content_toml)
+
+
 
     def on_start(self):
         pass        
@@ -38,11 +49,19 @@ class Clock(Component):
         reads_config = False
         creates_logs = True
         super().__init__(parent, game_ref, silent, creates_logs, reads_config)
-        self.time = 0
+        self.start_time = self.get_time()
+
+    def get_time(self):
+        return self.game_ref.time
 
     def log_data(self):
         sensor = {
-            "time": self.time
+            "type": "clock",
+            "id": self.id,
+            "global_time": self.get_time(),
+            "start_time": self.start_time,
+            "local_time": self.get_time() - self.start_time,
+            
         }
         return sensor
 
