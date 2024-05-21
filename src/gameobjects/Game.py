@@ -52,16 +52,13 @@ class Game:
             savegame.write(json.dumps(d))
 
     def update(self, delta: float):
-        print("update game")
         self.time += delta
         self.player.update(delta)
 
     def loop(self):
         running_time = -2
         while True:
-            print("loop")
             with self.lock:
-                print("lock")
                 if self.initiated:
                     if self.stopped:
                         print("stopped game")
