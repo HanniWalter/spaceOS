@@ -81,7 +81,7 @@ def spaceship():
         #            # get spaceship
         #            return spaceship.to_dict()
             # return error
-            return {"success": False}, 404
+         #   return {"success": False}, 404
         elif request.method == "DELETE":
             for spaceship in game.player.spaceships:
                 if spaceship.id == id:
