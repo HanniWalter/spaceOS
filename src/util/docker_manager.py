@@ -7,6 +7,7 @@ import shutil
 import random
 import tarfile
 from io import BytesIO
+import subprocess
 #with open("resources/settings.yaml", "r") as f:
 #    settings = yaml.safe_load(f)["settings"]
     
@@ -54,11 +55,11 @@ class Operating_System:
         self.container = container
         return container
 
+#at the moment obsolete
 def modify_dockerfile(dockerfile):
-    with open("resources/dockerfile_attachment", "r") as f:
-        additional_content = f.readlines()
-    additional_content[-1] = additional_content[-1]+"\n"
-
+    #with open("resources/dockerfile_attachment", "r") as f:
+    #    additional_content = f.readlines()
+    #additional_content[-1] = additional_content[-1]+"\n"
     with open(dockerfile, "r") as f:
         rawlines = f.readlines()
     rawlines[-1] = rawlines[-1]+"\n"
@@ -66,7 +67,8 @@ def modify_dockerfile(dockerfile):
     for line in rawlines:                    
         lines.append(line)
         if line.upper().startswith("FROM"):
-            lines += additional_content
+            pass
+    #        lines += additional_content
     with open(dockerfile, "w") as f:
         f.writelines(lines)
     
@@ -98,11 +100,16 @@ def attach_console_windows(container):
 
 def attach_console_linux(container):
     linux_command = "gnome-terminal -- sh -c"
-    # open cmd and attach to container
+    #check if gnome-terminal is installed
+    if hostos.system(linux_command) != 0:
+        #if not use kubuntu terminal
+        linux_command = "konsole --hold -e"
     
+    # open cmd and attach to container 
     command = "docker exec -it {container} /bin/bash".format(
         container=container.name)
-    hostos.system(linux_command+' "' + command+'"')
+    full_command = linux_command+' "' + command+'"'
+    subprocess.Popen(full_command, shell=True)
 
 def reload_oss():
     for folder in glob.glob("resources/operating_systems/*"):
@@ -166,12 +173,25 @@ def write_to_container(container, content: str, dir: str, filename: str):
         # Creating a TarInfo object for the file
         info = tarfile.TarInfo(name=filename)
         info.size = len(content)
-        
         # Adding the file to the archive
         tar.addfile(info, io.BytesIO(content.encode()))
 
     # Putting the archive into the container with the complete destination path
     container.put_archive(dir, stream.getvalue())
+
+def create_file_in_container(container, dir: str, filename: str):
+    if not container:
+        return None
+    if not is_container_running(container):
+        return None
+    
+    #using touch to create file
+    container.exec_run("mkdir -p {dir}".format(dir=dir))
+
+    path = hostos.path.join(dir, filename)
+
+    command = f"touch {path}"
+    container.exec_run(command)
 
 reload_oss()
 
