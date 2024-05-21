@@ -49,6 +49,9 @@ class Clock(Component):
         reads_config = False
         creates_logs = True
         super().__init__(parent, game_ref, silent, creates_logs, reads_config)
+
+
+    def on_start(self):
         self.start_time = self.get_time()
 
     def get_time(self):
