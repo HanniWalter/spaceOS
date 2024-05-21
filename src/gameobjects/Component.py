@@ -25,7 +25,6 @@ class Component(Game_Object):
             self.write_log()
         if self.reads_config:
             self.config = self.read_config()
-        print("test update")
 
     def read_config(self):
         container = self.parent.get_container()
