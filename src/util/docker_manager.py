@@ -7,6 +7,7 @@ import shutil
 import random
 import tarfile
 from io import BytesIO
+import subprocess
 #with open("resources/settings.yaml", "r") as f:
 #    settings = yaml.safe_load(f)["settings"]
     
@@ -107,7 +108,8 @@ def attach_console_linux(container):
     # open cmd and attach to container 
     command = "docker exec -it {container} /bin/bash".format(
         container=container.name)
-    hostos.system(linux_command+' "' + command+'"')
+    full_command = linux_command+' "' + command+'"'
+    subprocess.Popen(full_command, shell=True)
 
 def reload_oss():
     for folder in glob.glob("resources/operating_systems/*"):
