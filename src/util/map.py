@@ -45,7 +45,7 @@ def show_map(game):
         "height": 600,
         "width": 600,
         "central_location": (0, 0),
-        "scale": 300,
+        "scale": 4,
     }
     img = render_map(game, config)
     img.show()

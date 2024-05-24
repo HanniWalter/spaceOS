@@ -80,11 +80,18 @@ class Game:
         threading.Thread(target=self.loop).start()
 
     def test_data(self):
-        ship = Spaceship(game_ref=self)
-        self.player.spaceships.append(ship)
-        clock = Clock(parent=ship, game_ref=self)
-        
+        ships = []
+        for x in range (0, 5):
+            ship = Spaceship(game_ref=self)
+            self.player.spaceships.append(ship)
+            ships.append(ship)
+            clock = Clock(parent=ship, game_ref=self)
 
+        ships[0].location = np.array([-1000,-1000,0])
+        ships[1].location = np.array([1000,-1000,0])
+        ships[2].location = np.array([-1000,1000,0])
+        ships[3].location = np.array([1000,1000,0])
+        
 #for what is forced? 
 #its for saving the top level gameobject, elsewise Game would only be saved as a reference
 def to_dict(obj, forced = False):
@@ -211,7 +218,7 @@ if __name__ == "__main__":
     from src.gameobjects.Spaceship import Spaceship
 
     game = Game.new_game()
-    game.player.spaceships.append(Spaceship(game_ref=game, silent=False))
+    #game.player.spaceships.append(Spaceship(game_ref=game, silent=False))
     d = to_dict(game, forced=True)
     game.running = False
     game.stopped = True
