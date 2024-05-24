@@ -9,12 +9,13 @@ from src.gameobjects.Game import Game
 from src.gameobjects.Spaceship import Spaceship
 from src.util import docker_manager
 from src.util import map_renderer
-#import game_classes
-#from game_classes import getSavegames, docker_manager
+# import game_classes
+# from game_classes import getSavegames, docker_manager
 
 app = Flask(__name__)
 
 game = None
+
 
 def getSavegames():
     savegames = []
@@ -23,14 +24,16 @@ def getSavegames():
     return savegames
 
 ### Flask routes api ###
+
+
 @app.route("/savegames", methods=["GET"])
 def savegames():
     return {"savegames": getSavegames()}
 
 
-#@app.route("/game", methods=["GET"])
-#def game_data():
-#    with game.lock: 
+# @app.route("/game", methods=["GET"])
+# def game_data():
+#    with game.lock:
 #        return game.to_dict()
 
 
@@ -75,9 +78,9 @@ def spaceship():
                 print("update spaceship")
                 ship = game.objects[int(request.json["id"])]
                 ship.apply_template(request.json)
-            
+
             return {"success": True}, 201
-        #elif request.method == "GET":
+        # elif request.method == "GET":
         #    for spaceship in game.player.spaceships:
         #        if spaceship.id == id:
         #            # get spaceship
@@ -121,6 +124,7 @@ def reload_oss():
         docker_manager.reload_oss()
         return {"success": True}, 201
 
+
 @app.route("/build_os/<int:os_id>", methods=["POST"])
 def build_os(os_id):
     with game.lock:
@@ -130,6 +134,7 @@ def build_os(os_id):
             return {"success": True}, 201
         return {"success": False}, 404
 
+
 @app.route("/map_image", methods=["POST"])
 def get_map():
     render_config = request.json
@@ -138,13 +143,12 @@ def get_map():
         image = map_renderer.render_map(game, render_config)
         image_io = BytesIO()
         image.save(image_io, 'PNG')
-        dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
+        dataurl = 'data:image/png;base64,' + \
+            b64encode(image_io.getvalue()).decode('ascii')
         return {"image": dataurl}
 
 
 ### Flask routes web ###
-
-
 @app.route("/")
 def index():
     # redirect to main menu
@@ -160,20 +164,20 @@ def main_menu():
 def main():
     global game
     with game.lock:
-        return render_template("main.html",oss = docker_manager.oss, game=game)
+        return render_template("main.html", oss=docker_manager.oss, game=game)
 
 
 @app.route("/map")
 def map():
-    #global game
-    #with game.lock:
+    # global game
+    # with game.lock:
     return render_template("map.html")
+
 
 @app.route("/spaceships/<int:spaceship_id>")
 def spaceships(spaceship_id):
     with game.lock:
         return "<p>Spaceship %d</p>" % spaceship_id
-
 
 
 @app.route("/ShipDesigner/<int:spaceship_id>")
@@ -192,5 +196,5 @@ def ship_designer_new():
 
 
 def ship_designer_template(spaceship, new_ship):
-        return render_template("ship_designer.html",
+    return render_template("ship_designer.html",
                            spaceship=spaceship, game=game, new_ship=new_ship, oss=docker_manager.oss)

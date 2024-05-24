@@ -3,21 +3,22 @@ import numpy as np
 from src.util import docker_manager
 from src.gameobjects.Game_Object import Game_Object
 from src.gameobjects.Thruster import Thruster
-import toml  
+import toml
 
 containers = {}
 
+
 class Spaceship(Game_Object):
-    def __init__(self,game_ref = None, silent=False):
-        super().__init__(game_ref,silent=silent)
+    def __init__(self, game_ref=None, silent=False):
+        super().__init__(game_ref, silent=silent)
         self.name = "spaceship1"
         self.operating_system = docker_manager.get_os_name("test")
         self.started = False
-        self.location = np.array([0,0,0])
-        self.rotation = np.array([0,0,0])
+        self.location = np.array([0, 0, 0])
+        self.rotation = np.array([0, 0, 0])
 
         self.components = []
-        #self.test_thrusters()
+        # self.test_thrusters()
 
     def start(self):
         if self.started:
@@ -58,4 +59,3 @@ class Spaceship(Game_Object):
 
         for component in self.components:
             component.update(delta)
-
