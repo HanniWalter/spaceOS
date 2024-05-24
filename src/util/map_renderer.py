@@ -14,7 +14,7 @@ class Map_Renderer:
         self.config = config
         self.height = config["height"]
         self.width = config["width"]
-        self.central_location = config["central_location"]
+        self.central_location = (config["central_location"]["x"], config["central_location"]["y"])
         self.scale = config["scale"]
         self.img = Image.new('RGB', (self.width, self.height), color = (0xea, 0xdd, 0xcd))
     

@@ -130,15 +130,12 @@ def build_os(os_id):
             return {"success": True}, 201
         return {"success": False}, 404
 
-@app.route("/map_image", methods=["GET"])
+@app.route("/map_image", methods=["POST"])
 def get_map():
+    render_config = request.json
     with game.lock:
-        image = map_renderer.render_map(game, {
-            "height": 600,
-            "width": 600,
-            "central_location": (0, 0),
-            "scale": 4,
-        })
+
+        image = map_renderer.render_map(game, render_config)
         image_io = BytesIO()
         image.save(image_io, 'PNG')
         dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
