@@ -225,6 +225,6 @@ if __name__ == "__main__":
     game = from_dict(d, None)
     game.continue_game()
 
-    from src.util import map
+    from src.util import map_renderer
     
-    map.show_map(game)
+    map_renderer.show_map(game)

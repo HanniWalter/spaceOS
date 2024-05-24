@@ -31,9 +31,7 @@ class Map_Renderer:
 
     def render_ship(self,ship):
         #add a circle to the image
-        print(ship.location)
         location = self.transform_location((ship.location[0], ship.location[1]))
-        print(location)
         radius = 10
         color = (0, 0, 255)
 

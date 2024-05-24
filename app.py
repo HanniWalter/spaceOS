@@ -2,11 +2,13 @@
 
 from flask import Flask, redirect, url_for, render_template, request
 import glob
+from base64 import b64encode
+from io import BytesIO
 
 from src.gameobjects.Game import Game
 from src.gameobjects.Spaceship import Spaceship
 from src.util import docker_manager
-
+from src.util import map_renderer
 #import game_classes
 #from game_classes import getSavegames, docker_manager
 
@@ -127,6 +129,22 @@ def build_os(os_id):
             os.build_image(force=True)
             return {"success": True}, 201
         return {"success": False}, 404
+
+@app.route("/map_image", methods=["GET"])
+def get_map():
+    with game.lock:
+        image = map_renderer.render_map(game, {
+            "height": 600,
+            "width": 600,
+            "central_location": (0, 0),
+            "scale": 4,
+        })
+        image_io = BytesIO()
+        image.save(image_io, 'PNG')
+        dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
+        return {"image": dataurl}
+
+
 ### Flask routes web ###
 
 
@@ -150,9 +168,9 @@ def main():
 
 @app.route("/map")
 def map():
-    global game
-    with game.lock:
-        return render_template("map.html", game=game)
+    #global game
+    #with game.lock:
+    return render_template("map.html")
 
 @app.route("/spaceships/<int:spaceship_id>")
 def spaceships(spaceship_id):
