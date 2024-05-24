@@ -3,3 +3,4 @@ docker
 pyyaml
 numpy
 toml
+Pillow

@@ -5,6 +5,9 @@ import json
 
 import numpy as np
 
+if __name__ == "__main__":
+    import sys
+    sys.path.append(".")
 
 #load own package
 from src.util import docker_manager
@@ -177,7 +180,7 @@ def from_dict(d, game_ref, no_ref = False, only_ref = False):
             r = game_ref.objects[d["value"]["id"]["value"]]
         else:
             cls = d["class"]
-            r = globals()[cls](game_ref)
+            r = globals()[cls](game_ref = game_ref, silent=True)
         for key in d["value"]:
             r.__dict__[key] = from_dict(d["value"][key], game_ref, no_ref=no_ref, only_ref=only_ref) 
         return r
@@ -203,6 +206,8 @@ def from_dict(d, game_ref, no_ref = False, only_ref = False):
     assert False, "something went wrong"
 
 if __name__ == "__main__":
+
+
     from src.gameobjects.Spaceship import Spaceship
 
     game = Game.new_game()
@@ -210,8 +215,9 @@ if __name__ == "__main__":
     d = to_dict(game, forced=True)
     game.running = False
     game.stopped = True
-    print(len(game.objects))
-    
-    #print("###########")
     game = from_dict(d, None)
-    print(len(game.objects))
+    game.continue_game()
+
+    from src.util import map
+    
+    map.show_map(game)
