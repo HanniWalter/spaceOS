@@ -2,6 +2,10 @@ document.getElementById('menuBtn').addEventListener('click', function () {
     window.location.href = '/';
 });
 
+document.getElementById('mapBtn').addEventListener('click', function () {
+    window.location.href = '/map';
+});
+
 document.getElementById('reloadOssBtn').addEventListener('click', function () {
     fetch('/reload_oss', {
         method: 'POST',

@@ -148,6 +148,12 @@ def main():
         return render_template("main.html",oss = docker_manager.oss, game=game)
 
 
+@app.route("/map")
+def map():
+    global game
+    with game.lock:
+        return render_template("map.html", game=game)
+
 @app.route("/spaceships/<int:spaceship_id>")
 def spaceships(spaceship_id):
     with game.lock:
