@@ -1,12 +1,15 @@
 from src.gameobjects.Game_Object import Game_Object 
 from src.util import docker_manager
+from src.gameobjects.Spaceship import Spaceship
 import toml
 
 class Component(Game_Object):
-    def __init__(self,parent: Game_Object, game_ref = None, silent = False, creates_logs = False, reads_config = False):
+    def __init__(self,parent: Spaceship = None, game_ref = None, silent = False, creates_logs = False, reads_config = False):
         super().__init__(game_ref, silent)
         self.reads_config = reads_config
         self.creates_logs = creates_logs
+        if not parent:
+            return
         self.parent = parent
         parent.components.append(self)
 
@@ -44,7 +47,7 @@ class Component(Game_Object):
 #gets the current time
 #not configurable    
 class Clock(Component):
-    def __init__(self, parent: Game_Object, game_ref = None, silent = False):
+    def __init__(self, parent: Game_Object = None, game_ref = None, silent = False):
         reads_config = False
         creates_logs = True
         super().__init__(parent, game_ref, silent, creates_logs, reads_config)

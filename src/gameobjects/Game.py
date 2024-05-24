@@ -5,6 +5,9 @@ import json
 
 import numpy as np
 
+if __name__ == "__main__":
+    import sys
+    sys.path.append(".")
 
 #load own package
 from src.util import docker_manager
@@ -77,11 +80,18 @@ class Game:
         threading.Thread(target=self.loop).start()
 
     def test_data(self):
-        ship = Spaceship(game_ref=self)
-        self.player.spaceships.append(ship)
-        clock = Clock(parent=ship, game_ref=self)
-        
+        ships = []
+        for x in range (0, 5):
+            ship = Spaceship(game_ref=self)
+            self.player.spaceships.append(ship)
+            ships.append(ship)
+            clock = Clock(parent=ship, game_ref=self)
 
+        ships[0].location = np.array([-1000,-1000,0])
+        ships[1].location = np.array([1000,-1000,0])
+        ships[2].location = np.array([-1000,1000,0])
+        ships[3].location = np.array([1000,1000,0])
+        
 #for what is forced? 
 #its for saving the top level gameobject, elsewise Game would only be saved as a reference
 def to_dict(obj, forced = False):
@@ -177,7 +187,7 @@ def from_dict(d, game_ref, no_ref = False, only_ref = False):
             r = game_ref.objects[d["value"]["id"]["value"]]
         else:
             cls = d["class"]
-            r = globals()[cls](game_ref)
+            r = globals()[cls](game_ref = game_ref, silent=True)
         for key in d["value"]:
             r.__dict__[key] = from_dict(d["value"][key], game_ref, no_ref=no_ref, only_ref=only_ref) 
         return r
@@ -203,15 +213,18 @@ def from_dict(d, game_ref, no_ref = False, only_ref = False):
     assert False, "something went wrong"
 
 if __name__ == "__main__":
+
+
     from src.gameobjects.Spaceship import Spaceship
 
     game = Game.new_game()
-    game.player.spaceships.append(Spaceship(game_ref=game, silent=False))
+    #game.player.spaceships.append(Spaceship(game_ref=game, silent=False))
     d = to_dict(game, forced=True)
     game.running = False
     game.stopped = True
-    print(len(game.objects))
-    
-    #print("###########")
     game = from_dict(d, None)
-    print(len(game.objects))
+    game.continue_game()
+
+    from src.util import map_renderer
+    
+    map_renderer.show_map(game)
