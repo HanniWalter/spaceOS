@@ -8,6 +8,7 @@ import random
 import tarfile
 from io import BytesIO
 import subprocess
+from src.util import local_config_manager
 # with open("resources/settings.yaml", "r") as f:
 #    settings = yaml.safe_load(f)["settings"]
 
@@ -88,36 +89,10 @@ def is_container_running(container):
 def attach_console(container):
     if not container:
         return False
-    # check os
-    if hostos.name == "nt":
-        attach_console_windows(container)
-    elif hostos.name == "posix":
-        attach_console_linux(container)
-    else:
-        print("OS " + hostos.name+" not supported")
-        return False
-
-
-def attach_console_windows(container):
-    windows_command = "start cmd /k"
-    # open cmd and attach to container
-    command = "docker exec -it {container} /bin/bash".format(
-        container=container.name)
-    hostos.system(windows_command+" " + command)
-
-
-def attach_console_linux(container):
-    linux_command = "gnome-terminal -- sh -c"
-    # check if gnome-terminal is installed
-    if hostos.system(linux_command) != 0:
-        # if not use kubuntu terminal
-        linux_command = "konsole --hold -e"
-
-    # open cmd and attach to container
-    command = "docker exec -it {container} /bin/bash".format(
-        container=container.name)
-    full_command = linux_command+' "' + command+'"'
-    subprocess.Popen(full_command, shell=True)
+    console_command = local_config_manager.config["console_command"]
+    docker_command = local_config_manager.config["docker_command"]
+    subprocess.Popen(console_command+" " +
+                     docker_command.format(container=container.name), shell=True)
 
 
 def reload_oss():
