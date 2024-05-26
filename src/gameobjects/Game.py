@@ -14,7 +14,7 @@ from src.util import docker_manager
 from src.gameobjects.Player import Player
 from src.gameobjects.Game_Object import Game_Object
 from src.gameobjects.Spaceship import Spaceship
-from src.gameobjects.Component import Clock
+from src.gameobjects.Component import Clock, Teleporter
 
 
 class Game:
@@ -85,7 +85,8 @@ class Game:
             ship = Spaceship(game_ref=self)
             self.player.spaceships.append(ship)
             ships.append(ship)
-            clock = Clock(parent=ship, game_ref=self)
+            clock = Clock.new(parent=ship, game_ref=self)
+            teleporter = Teleporter.new(parent=ship, game_ref=self)
 
         ships[0].location = np.array([-1000, -1000, 0])
         ships[1].location = np.array([1000, -1000, 0])

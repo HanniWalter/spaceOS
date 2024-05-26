@@ -2,17 +2,20 @@ from src.gameobjects.Game_Object import Game_Object
 from src.util import docker_manager
 from src.gameobjects.Spaceship import Spaceship
 import toml
+import numpy as np
 
 
 class Component(Game_Object):
-    def __init__(self, parent: Spaceship = None, game_ref=None, silent=False, creates_logs=False, reads_config=False):
+    def __init__(self, game_ref=None, silent=False):
         super().__init__(game_ref, silent)
-        self.reads_config = reads_config
-        self.creates_logs = creates_logs
-        if not parent:
-            return
-        self.parent = parent
-        parent.components.append(self)
+
+    def initialise(self, parent: Spaceship, creates_logs=False, reads_config=False):
+        r = self
+
+        r.reads_config = reads_config
+        r.creates_logs = creates_logs
+        r.parent = parent
+        r.parent.components.append(r)
 
     def create_files(self):
         container = self.parent.get_container()
@@ -29,7 +32,7 @@ class Component(Game_Object):
             docker_manager.write_to_container(
                 container, dir=f"/ship/{self.id}/", filename="config", content="no data")
 
-    def update(self, delta: float):
+    def update2(self, delta: float):
         if self.creates_logs:
             self.write_log()
         if self.reads_config:
@@ -37,7 +40,14 @@ class Component(Game_Object):
 
     def read_config(self):
         container = self.parent.get_container()
-        return docker_manager.read_from_container(container, dir=f"/ship/{self.id}/", filename="config")
+        config = docker_manager.read_from_container(
+            container, dir=f"/ship/{self.id}/", filename="config")
+        if config == "no data":
+            return {"error": "no data"}
+
+        config = toml.loads(config)
+
+        return config
 
     def write_log(self):
         sensor = self.log_data()
@@ -49,15 +59,53 @@ class Component(Game_Object):
     def on_start(self):
         pass
 
+    def update(self, delta: float):
+        pass
+
+    def log_data(self):
+        return {}
+
 # gets the current time
 # not configurable
 
 
+class Teleporter(Component):
+    def __init__(self, game_ref=None, silent=False):
+        super().__init__(game_ref, silent)
+        self.next_job_id = 0
+
+    def new(parent: Spaceship, game_ref):
+        r = Teleporter(game_ref=game_ref)
+        r.initialise(parent, creates_logs=True, reads_config=True)
+        return r
+
+    def update(self, delta: float):
+        if "error" in self.config:
+            return
+        if self.config["next_job_id"] == self.next_job_id:
+            self.next_job_id = self.config["next_job_id"] + 1
+            locationx = self.config["location"][0]
+            locationy = self.config["location"][1]
+            locationz = self.config["location"][2]
+            self.parent.location = np.array([locationx, locationy, locationz])
+
+    def log_data(self):
+        sensor = {
+            "type": "teleporter",
+            "next_job_id": self.next_job_id,
+            "location": self.parent.location,
+        }
+        return sensor
+
+
 class Clock(Component):
-    def __init__(self, parent: Game_Object = None, game_ref=None, silent=False):
-        reads_config = False
-        creates_logs = True
-        super().__init__(parent, game_ref, silent, creates_logs, reads_config)
+    def __init__(self, game_ref=None, silent=False):
+        super().__init__(game_ref, silent)
+
+    def new(parent: Spaceship, game_ref):
+        r = Clock(game_ref=game_ref)
+        r.initialise(parent, creates_logs=True, reads_config=False)
+        return r
 
     def on_start(self):
         self.start_time = self.get_time()
@@ -72,7 +120,6 @@ class Clock(Component):
             "global_time": self.get_time(),
             "start_time": self.start_time,
             "local_time": self.get_time() - self.start_time,
-
         }
         return sensor
 

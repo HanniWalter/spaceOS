@@ -58,4 +58,5 @@ class Spaceship(Game_Object):
         assert container, "Container not found"
 
         for component in self.components:
+            component.update2(delta)
             component.update(delta)
