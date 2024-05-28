@@ -11,11 +11,10 @@ if __name__ == "__main__":
 
 # load own package
 from src.util import docker_manager
-from src.gameobjects.Player import Player
-from src.gameobjects.Game_Object import Game_Object
-from src.gameobjects.Spaceship import Spaceship
-from src.gameobjects.Component import Clock, Teleporter
-
+import src.gameobjects.Player as Player
+import src.gameobjects.Game_Object as Game_Object
+import src.gameobjects.Spaceship as Spaceship
+import src.gameobjects.Component as Component
 
 class Game:
     def __init__(self):
@@ -29,7 +28,7 @@ class Game:
 
     def new_game():
         ret = Game()
-        ret.player = Player(game_ref=ret)
+        ret.player = Player.Player.new(ret, "main_player")
         ret.initiated = True
 
         # remove this lines when not longer in testing
@@ -47,8 +46,10 @@ class Game:
     def load_game(savegame_name):
         with open("resources/savegames/"+savegame_name, "r") as savegame:
             d = json.loads(savegame.read())
-            return from_dict(d, None)
-
+            r = from_dict(d, None)
+            r.continue_game()
+            return r
+        
     def save_game(self, savegame_name):
         with open("resources/savegames/"+savegame_name, "w") as savegame:
             d = to_dict(self, forced=True)
@@ -82,11 +83,11 @@ class Game:
     def test_data(self):
         ships = []
         for x in range(0, 5):
-            ship = Spaceship(game_ref=self)
+            ship = Spaceship.Spaceship(game_ref=self)
             self.player.spaceships.append(ship)
             ships.append(ship)
-            clock = Clock.new(parent=ship, game_ref=self)
-            teleporter = Teleporter.new(parent=ship, game_ref=self)
+            clock = Component.Clock.new(parent=ship, game_ref=self)
+            teleporter = Component.Teleporter.new(parent=ship, game_ref=self)
 
         ships[0].location = np.array([-1000, -1000, 0])
         ships[1].location = np.array([1000, -1000, 0])
@@ -224,8 +225,7 @@ def from_dict(d, game_ref, no_ref=False, only_ref=False):
 
 
 if __name__ == "__main__":
-
-    from src.gameobjects.Spaceship import Spaceship
+    import src.gameobjects.Spaceship as Spaceship
 
     game = Game.new_game()
     # game.player.spaceships.append(Spaceship(game_ref=game, silent=False))

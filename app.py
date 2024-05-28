@@ -5,8 +5,8 @@ import glob
 from base64 import b64encode
 from io import BytesIO
 
-from src.gameobjects.Game import Game
-from src.gameobjects.Spaceship import Spaceship
+import src.gameobjects as gameobjects
+import src.gameobjects.Game as Game
 from src.util import docker_manager
 from src.util import map_renderer
 # import game_classes
@@ -40,7 +40,7 @@ def savegames():
 @app.route("/newgame", methods=["POST"])
 def newgame():
     global game
-    game = Game.new_game()
+    game = Game.Game.new_game()
     # return success
     return {"success": True}, 201
 
@@ -48,7 +48,7 @@ def newgame():
 @app.route("/loadgame", methods=["POST"])
 def loadgame():
     global game
-    game = Game.load_game("savegame")
+    game = Game.Game.load_game("savegame")
     # return success
     return {"success": True}, 201
 
@@ -71,7 +71,7 @@ def spaceship():
             # create spaceship
             if request.json["id"] == "":
                 print("new spaceship")
-                ship = Spaceship(game_ref=game)
+                ship = Spaceship.Spaceship(game_ref=game)
                 ship.apply_template(request.json)
                 game.player.spaceships.append(ship)
             else:
@@ -192,7 +192,7 @@ def ship_designer(spaceship_id):
 @app.route("/ShipDesigner/new")
 def ship_designer_new():
     with game.lock:
-        return ship_designer_template(Spaceship(silent=True), new_ship=True)
+        return ship_designer_template(Spaceship.Spaceship(silent=True), new_ship=True)
 
 
 def ship_designer_template(spaceship, new_ship):

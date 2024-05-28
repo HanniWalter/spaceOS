@@ -1,15 +1,16 @@
-from src.gameobjects.Game_Object import Game_Object
+import src.gameobjects as gameobjects
+#from src.gameobjects.Game_Object import Game_Object
 from src.util import docker_manager
-from src.gameobjects.Spaceship import Spaceship
+#from src.gameobjects.Spaceship import Spaceship
 import toml
 import numpy as np
+import src.gameobjects.Game_Object as Game_Object
 
-
-class Component(Game_Object):
+class Component(Game_Object.Game_Object):
     def __init__(self, game_ref=None, silent=False):
         super().__init__(game_ref, silent)
 
-    def initialise(self, parent: Spaceship, creates_logs=False, reads_config=False):
+    def initialise(self, parent: gameobjects.Spaceship, creates_logs=False, reads_config=False):
         r = self
 
         r.reads_config = reads_config
@@ -74,7 +75,7 @@ class Teleporter(Component):
         super().__init__(game_ref, silent)
         self.next_job_id = 0
 
-    def new(parent: Spaceship, game_ref):
+    def new(parent: gameobjects.Spaceship, game_ref):
         r = Teleporter(game_ref=game_ref)
         r.initialise(parent, creates_logs=True, reads_config=True)
         return r
@@ -102,7 +103,7 @@ class Clock(Component):
     def __init__(self, game_ref=None, silent=False):
         super().__init__(game_ref, silent)
 
-    def new(parent: Spaceship, game_ref):
+    def new(parent: gameobjects.Spaceship, game_ref):
         r = Clock(game_ref=game_ref)
         r.initialise(parent, creates_logs=True, reads_config=False)
         return r

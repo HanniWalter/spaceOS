@@ -1,7 +1,6 @@
-from src.gameobjects.Game_Object import Game_Object
+import src.gameobjects.Game_Object as Game_Object
 
-
-class Thruster(Game_Object):
+class Thruster(Game_Object.Game_Object):
     def __init__(self, game_ref=None, silent=False):
         super().__init__(game_ref, silent)
 

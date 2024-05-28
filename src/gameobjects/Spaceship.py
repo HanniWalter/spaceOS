@@ -1,14 +1,14 @@
 import numpy as np
 
 from src.util import docker_manager
-from src.gameobjects.Game_Object import Game_Object
-from src.gameobjects.Thruster import Thruster
+import src.gameobjects.Game_Object as Game_Object
+import src.gameobjects.Thruster as Thruster
 import toml
 
 containers = {}
 
 
-class Spaceship(Game_Object):
+class Spaceship(Game_Object.Game_Object):
     def __init__(self, game_ref=None, silent=False):
         super().__init__(game_ref, silent=silent)
         self.name = "spaceship1"
