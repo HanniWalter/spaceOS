@@ -7,6 +7,7 @@ from io import BytesIO
 
 import src.gameobjects as gameobjects
 import src.gameobjects.Game as Game
+import src.gameobjects.Spaceship as Spaceship
 from src.util import docker_manager
 from src.util import map_renderer
 # import game_classes
