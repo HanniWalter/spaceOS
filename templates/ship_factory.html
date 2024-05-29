@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ship Designer</title>
+    {#<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> #}
+</head>
+<body>
+    <div class="player-container">
+    Player: {{ game.player.name }}  Money: {{ game.player.money }} <br>
+    </div>
+    <br>
+    <div class="ships-container">
+        shipid = {{spaceship.id}}
+        <br>
+        Operating System: 
+        <select id= "os-select">
+            {% for os in oss%}
+                <option value="{{os.name}}">{{os.name}}</option>
+            {% endfor %}
+        </select>
+        <br>
+        Here would be a lot to customise the ship
+    </div>
+    <br>
+    <div class="actions-container">
+        <button id="menuBtn">Main Menu</button>
+        {% if new_ship %}
+        <button id="ConfirmBtn">Build Ship</button>
+        {% else %}
+        <button id="ConfirmBtn">Modify Ship</button>
+        {% endif %}
+    </div>
+    <div class = "hidden" style="display:none">
+        <div id = "shipid">{{spaceship.id}}</div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/ship_designer.js') }}"></script>
+</body>
+</html>

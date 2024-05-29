@@ -190,12 +190,17 @@ def ship_designer(spaceship_id):
         return "Spaceship not found", 404
 
 
-@app.route("/ShipDesigner/new")
-def ship_designer_new():
+@app.route("/shipfactory/new")
+def ship_factory_new():
     with game.lock:
-        return ship_designer_template(Spaceship.Spaceship(silent=True), new_ship=True)
+        spaceship_factory = game.player.get_spaceship_factory()
+        return ship_factory_template(spaceship_factory, new_ship=True)
 
 
-def ship_designer_template(spaceship, new_ship):
-    return render_template("ship_designer.html",
-                           spaceship=spaceship, game=game, new_ship=new_ship, oss=docker_manager.oss)
+def ship_factory_template(new_ship):
+    return render_template("ship_factory.html", game=game, new_ship=new_ship, oss=docker_manager.oss)
+
+
+# def ship_designer_template(spaceship, new_ship):
+#    return render_template("ship_designer.html",
+#                           spaceship=spaceship, game=game, new_ship=new_ship, oss=docker_manager.oss)
