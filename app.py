@@ -170,37 +170,31 @@ def main():
 
 @app.route("/map")
 def map():
-    # global game
-    # with game.lock:
     return render_template("map.html")
 
 
-@app.route("/spaceships/<int:spaceship_id>")
-def spaceships(spaceship_id):
-    with game.lock:
-        return "<p>Spaceship %d</p>" % spaceship_id
-
-
-@app.route("/ShipDesigner/<int:spaceship_id>")
-def ship_designer(spaceship_id):
+@app.route("/shipfactory/<int:spaceship_id>")
+def ship_factory(spaceship_id):
     with game.lock:
         spaceship = game.player.get_spaceship(spaceship_id)
         if spaceship:
-            return ship_designer_template(spaceship, new_ship=False)
+            game.player.spaceship_factory.prepare_modification_config(spaceship_id)
+            return ship_factory_template(new_ship=False)
         return "Spaceship not found", 404
 
 
 @app.route("/shipfactory/new")
 def ship_factory_new():
     with game.lock:
-        spaceship_factory = game.player.get_spaceship_factory()
-        return ship_factory_template(spaceship_factory, new_ship=True)
+        
+        #spaceship_factory = game.player.get_spaceship_factory()
+        return ship_factory_template(new_ship=True)
 
 
 def ship_factory_template(new_ship):
-    return render_template("ship_factory.html", game=game, new_ship=new_ship, oss=docker_manager.oss)
-
-
-# def ship_designer_template(spaceship, new_ship):
-#    return render_template("ship_designer.html",
-#                           spaceship=spaceship, game=game, new_ship=new_ship, oss=docker_manager.oss)
+    if new_ship:
+        config = game.player.spaceship_factory.spaceship_config
+    else:
+        config = game.player.spaceship_factory.spaceship_modification_config
+    print(config)
+    return render_template("ship_factory.html", game=game, new_ship=new_ship, config = config ,oss=docker_manager.oss)

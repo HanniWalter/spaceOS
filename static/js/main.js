@@ -23,7 +23,7 @@ document.getElementById('reloadOssBtn').addEventListener('click', function () {
 });
 
 document.getElementById('newShipBtn').addEventListener('click', function () {
-    window.location.href = '/ShipDesigner/new';
+    window.location.href = '/shipfactory/new';
 });
 var os_containers = document.getElementsByClassName('os-container');
 for (var i = 0; i < os_containers.length; i++) {
@@ -62,7 +62,7 @@ var containers = document.getElementsByClassName("ship-container");
         });
         var modifyBtn = containers[i].getElementsByClassName("modifyShipBtn")[0];
         modifyBtn.addEventListener('click', function () {
-            window.location.href = '/ShipDesigner/' + id;
+            window.location.href = '/shipfactory/' + id;
         });
         var consoleBtn = containers[i].getElementsByClassName("consoleShipBtn")[0];
         consoleBtn.addEventListener('click', function () {

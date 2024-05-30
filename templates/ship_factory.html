@@ -12,8 +12,14 @@
     </div>
     <br>
     <div class="ships-container">
-        shipid = {{spaceship.id}}
+        {% if new_ship %} 
+        {% else %}
+        shipid = {{ config.id }}
         <br>
+        {% endif %}
+        shipname = <input type="text" id="shipname" value="{{config.name}}"><br>
+        
+        
         Operating System: 
         <select id= "os-select">
             {% for os in oss%}
@@ -27,13 +33,13 @@
     <div class="actions-container">
         <button id="menuBtn">Main Menu</button>
         {% if new_ship %}
-        <button id="ConfirmBtn">Build Ship</button>
+        <button id="BuildBtn">Build Ship</button>
         {% else %}
-        <button id="ConfirmBtn">Modify Ship</button>
+        <button id="ModifyBtn">Modify Ship</button>
+        <button id="CloneBtn">Clone Ship</button>
         {% endif %}
     </div>
     <div class = "hidden" style="display:none">
-        <div id = "shipid">{{spaceship.id}}</div>
     </div>
 
     <script src="{{ url_for('static', filename='js/ship_designer.js') }}"></script>

@@ -21,7 +21,7 @@ class Game:
         self.initiated = False
         self.time = -1
         self.lock = threading.Lock()
-        self.objectcount = -1
+        self.objectcount = 0
         self.objects = {}
         self.stopped = True
         self.start()
