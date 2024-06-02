@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ship Designer</title>
+    {#<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> #}
+</head>
+<body>
+    <div class="player-container">
+    Player: {{ game.player.name }}  Money: {{ game.player.money }} <br>
+    </div>
+    <br>
+    <div class="ships-container">
+        {% if new_ship %} 
+        {% else %}
+        shipid = {{ config.id }}
+        <br>
+        {% endif %}
+        shipname = <input type="text" id="shipname" value="{{config.name}}"><br>
+        
+        
+        Operating System: 
+        <select id= "os-select">
+            {% for os in ship_factory_information.oss%}
+                {%if os == config.os%}
+                    <option value="{{os}}" selected>{{os}}</option>
+                {%else%}
+                    <option value="{{os}}">{{os}}</option>
+                {%endif%}
+            {% endfor %}
+        </select>
+        <br>
+        Here would be a lot to customise the ship
+    </div>
+    <br>
+    <div class="actions-container">
+        <button id="mainBtn">Return</button>
+        {% if new_ship %}
+        <button id="BuildBtn">Build Ship</button>
+        {% else %}
+        <button id="ModifyBtn">Modify Ship</button>
+        <button id="CloneBtn">Clone Ship</button>
+        {% endif %}
+    </div>
+    <div class = "hidden" style="display:none">
+        <div id="is new"> {{new_ship}} </div>
+        {% if not new_ship %}
+        <div id="shipid"> {{config.id}} </div>
+        {% endif %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/ship_factory.js') }}"></script>
+</body>
+</html>

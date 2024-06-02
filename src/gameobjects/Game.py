@@ -21,7 +21,7 @@ class Game:
         self.initiated = False
         self.time = -1
         self.lock = threading.Lock()
-        self.objectcount = -1
+        self.objectcount = 0
         self.objects = {}
         self.stopped = True
         self.start()
@@ -83,7 +83,7 @@ class Game:
     def test_data(self):
         ships = []
         for x in range(0, 5):
-            ship = Spaceship.Spaceship(game_ref=self)
+            ship = Spaceship.Spaceship.new(game_ref=self, name="Spaceship "+str(x), operating_system="test")
             self.player.spaceships.append(ship)
             ships.append(ship)
             clock = Component.Clock.new(parent=ship, game_ref=self)

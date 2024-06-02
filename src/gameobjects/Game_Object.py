@@ -7,8 +7,7 @@ class Game_Object:
         if silent:
             return
         assert game_ref, "game_ref is needed in nonsilent mode"
-        self.id = game_ref.objectcount
-        game_ref.objectcount += 1
+        self.id = len(game_ref.objects)
         game_ref.objects[self.id] = self
 
         self.game_ref = game_ref

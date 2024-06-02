@@ -14,11 +14,25 @@ class Spaceship(Game_Object.Game_Object):
         self.name = "spaceship1"
         self.operating_system = docker_manager.get_os_name("test")
         self.started = False
-        self.location = np.array([0, 0, 0])
-        self.rotation = np.array([0, 0, 0])
 
-        self.components = []
         # self.test_thrusters()
+
+    def new(game_ref,name, operating_system):
+        r = Spaceship(game_ref, silent=False)
+        r.name = name
+        r.operating_system = docker_manager.get_os_name(operating_system)
+        r.components = []
+        r.location = np.array([0, 0, 0])
+        r.rotation = np.array([0, 0, 0])
+
+        return r
+
+    def modify(self, modification_config):
+        self.name = modification_config["name"]
+        self.operating_system = docker_manager.get_os_name(modification_config["os"])
+
+    def clone(self):
+        r = Spaceship.new(self.game_ref, self.name, self.operating_system.name)
 
     def start(self):
         if self.started:
