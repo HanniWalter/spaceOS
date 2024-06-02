@@ -22,8 +22,12 @@
         
         Operating System: 
         <select id= "os-select">
-            {% for os in oss%}
-                <option value="{{os.name}}">{{os.name}}</option>
+            {% for os in ship_factory_information.oss%}
+                {%if os == config.os%}
+                    <option value="{{os}}" selected>{{os}}</option>
+                {%else%}
+                    <option value="{{os}}">{{os}}</option>
+                {%endif%}
             {% endfor %}
         </select>
         <br>
@@ -31,7 +35,7 @@
     </div>
     <br>
     <div class="actions-container">
-        <button id="menuBtn">Main Menu</button>
+        <button id="mainBtn">Return</button>
         {% if new_ship %}
         <button id="BuildBtn">Build Ship</button>
         {% else %}
@@ -40,8 +44,12 @@
         {% endif %}
     </div>
     <div class = "hidden" style="display:none">
+        <div id="is new"> {{new_ship}} </div>
+        {% if not new_ship %}
+        <div id="shipid"> {{config.id}} </div>
+        {% endif %}
     </div>
 
-    <script src="{{ url_for('static', filename='js/ship_designer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ship_factory.js') }}"></script>
 </body>
 </html>

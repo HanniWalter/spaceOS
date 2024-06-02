@@ -63,40 +63,34 @@ def savegame():
         return {"success": True}, 201
 
 
-@app.route("/spaceship", methods=["PUT", "DELETE"])
-def spaceship():
+@app.route("/create_spaceship", methods=["POST"])
+def create_spaceship():
     global game
     with game.lock:
-        id = request.json["id"]
-        if request.method == "PUT":
-            # create spaceship
-            if request.json["id"] == "":
-                print("new spaceship")
-                ship = Spaceship.Spaceship(game_ref=game)
-                ship.apply_template(request.json)
-                game.player.spaceships.append(ship)
-            else:
-                print("update spaceship")
-                ship = game.objects[int(request.json["id"])]
-                ship.apply_template(request.json)
+        spaceship = game.player.spaceship_factory.build_spaceship()
+        return {"id": spaceship.id}
 
-            return {"success": True}, 201
-        # elif request.method == "GET":
-        #    for spaceship in game.player.spaceships:
-        #        if spaceship.id == id:
-        #            # get spaceship
-        #            return spaceship.to_dict()
-            # return error
-         #   return {"success": False}, 404
-        elif request.method == "DELETE":
-            for spaceship in game.player.spaceships:
-                if spaceship.id == id:
-                    # delete spaceship
-                    game.player.spaceships.remove(spaceship)
-                    return {"success": True}, 201
-            # return error
-            return {"success": False}, 404
+@app.route("/clone_spaceship", methods=["POST"])
+def clone_spaceship():
+    global game
+    with game.lock:
+        spaceship = game.player.spaceship_factory.clone_spaceship()
+        return {"id": spaceship.id}
 
+@app.route("/modify_spaceship", methods=["POST"])
+def modify_spaceship():
+    global game
+    with game.lock:
+        spaceship = game.player.spaceship_factory.modify_spaceship()
+        return {"id": spaceship.id}    
+
+@app.route("/value_changed", methods=["POST"])
+def value_changed():
+    global game
+    with game.lock:
+        game.player.spaceship_factory.set_name(request.json["name"], request.json["new"])
+        game.player.spaceship_factory.set_os(request.json["os"], request.json["new"])
+        return {"success": True}, 201
 
 @app.route("/start_spaceship/<int:spaceship_id>", methods=["POST"])
 def start_spaceship(spaceship_id):
@@ -192,9 +186,12 @@ def ship_factory_new():
 
 
 def ship_factory_template(new_ship):
+    ship_factory_information = {}
+    ship_factory_information["oss"] = game.player.spaceship_factory.get_oss()
+    ship_factory_information["new_ship"] = new_ship
+    #ship_factory_information["modules"] = []
     if new_ship:
         config = game.player.spaceship_factory.spaceship_config
     else:
         config = game.player.spaceship_factory.spaceship_modification_config
-    print(config)
-    return render_template("ship_factory.html", game=game, new_ship=new_ship, config = config ,oss=docker_manager.oss)
+    return render_template("ship_factory.html", game=game, new_ship=new_ship, config = config, ship_factory_information=ship_factory_information)
