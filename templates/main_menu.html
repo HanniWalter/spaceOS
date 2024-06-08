@@ -7,14 +7,27 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+{% if gamemode == "singleplayer" %}
     <div class="menu-container">
         <button id="continueBtn">Continue</button>
         <button id="newGameBtn">New Game</button>
         <button id="loadGameBtn">Load Game</button>
         <button id="saveGameBtn">Save Game</button>
-        <button id="guideBtn">Guide</button>
     </div>
-
+{% elif gamemode == "multiplayer_host" %}
+    <div class="menu-container">
+        <button id="hostNewGameBtn">Host New Game</button>
+        <button id="hostSaveGameBtn">Load and Host Game</button>
+    </div>
+{% elif gamemode == "multiplayer_weak_client" %}
+    <div class="menu-container">
+        <button id="joinBtn">Join Game</button>
+    </div>
+{% elif gamemode == "multiplayer_strong_client" %}
+    <div class="menu-container">
+        <button id="joinBtn">Join Game</button>
+    </div>
+{% endif %}
     <script src="{{ url_for('static', filename='js/main_menu.js') }}"></script>
 </body>
 </html>

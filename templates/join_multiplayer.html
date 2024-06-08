@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Menu</title>
+    {#<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> #}
+</head>
+<body>
+    <div class="join-game-container">
+        <label for="IP">Host IP:</label>
+        <input type="text" id="IP" name="IP" value="128.0.0.1">
+        <label for="port">Port:</label>
+        <input type="text" id="port" name="port" value="5000">
+        <button id="joinGameBtn">Join Game</button>
+    </div>
+    <br>
+    <div class="actions-container">
+        <button id="menuBtn">Main Menu</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/join_multiplayer.js') }}"></script>
+</body>
+</html>

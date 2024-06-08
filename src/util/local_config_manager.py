@@ -16,7 +16,12 @@ def create_local_config_files():
         config['console_command'] = console_command_creater()
     if 'docker_command' not in config:
         config['docker_command'] = "docker exec -it {container} /bin/bash"
-
+    if 'port_singleplayer' not in config:
+        config['port_singleplayer'] = 5000
+    if 'port_host_multiplayer' not in config:
+        config['port_host_multiplayer'] = 5000
+    if 'port_local_multiplayer' not in config:
+        config['port_local_multiplayer'] = 5001
     toml.dump(config, open(local_config_file, 'w'))
 
 

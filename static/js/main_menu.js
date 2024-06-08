@@ -1,28 +1,7 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Fetch status for load and save buttons
-    fetch('/savegames')
-        .then(response => response.json())
-        .then(data => {
-            if (data.savegames.length == 0) {
-                document.getElementById('loadGameBtn').disabled = true;
-            }
-        });
-
-    fetch('/game')
-        .then(response => response.json())
-        .then(data => {
-            if (data.initiated == false) {
-                document.getElementById('saveGameBtn').disabled = true;
-                document.getElementById('continueBtn').disabled = true;
-            }
-        });
-
-    // Add event listeners to buttons
-    document.getElementById('newGameBtn').addEventListener('click', function () {
-        // Call API endpoint for new game newgame with POST method
-
-        fetch('/newgame', {
-            method: 'POST'
+document.getElementById('newGameBtn')?.addEventListener('click', function () {
+    //redo
+    fetch('/newgame', {
+        method: 'POST'
         })
             .then(response => response.json())
             .then(data => {
@@ -34,11 +13,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         
-    });
+});
 
-    document.getElementById('loadGameBtn').addEventListener('click', function () {
-        // Call API endpoint for loading game loadgame with POST method
-        fetch('/loadgame', {
+document.getElementById('loadGameBtn')?.addEventListener('click', function () {
+    //redo    
+    fetch('/loadgame', {
             method: 'POST'
         })
             .then(response => response.json())
@@ -52,8 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 
-    document.getElementById('saveGameBtn').addEventListener('click', function () {
-        // Call API endpoint for saving game savegame with POST method
+document.getElementById('saveGameBtn')?.addEventListener('click', function () {
+        //redo
         fetch('/savegame', {
             method: 'POST'
         })
@@ -68,13 +47,15 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 
-    document.getElementById('continueBtn').addEventListener('click', function () {
-        window.location.href = '/main';
-    });
+document.getElementById('continueBtn')?.addEventListener('click', function () {
+//redo
+    window.location.href = '/main';
+});
     
-    document.getElementById('guideBtn').addEventListener('click', function () {
-        // Add guide functionality here
-        alert('Guide button clicked.');
-    });
+document.getElementById('joinBtn')?.addEventListener('click', function () {
+    window.location.href = '/joinMultiplayer';
+});
 
+document.getElementById('hostNewGameBtn')?.addEventListener('click', function () {
+    window.location.href = '/hostMultiplayer';
 });

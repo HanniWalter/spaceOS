@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Menu</title>
+    {#<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> #}
+</head>
+<body>
+    {% if game.players|length == 0 %}
+        No players found. Register a new player.
+    {% else %}
+    <div class="login-container">
+        <select id="playerSelect">
+            {% for player in game.players %}
+                <option value="{{ player.name }}">{{ player.name }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        password: <input type="password" id="password" name="password">
+        <br>
+        <button id="loginBtn">login</button>
+    </div>
+    {% endif %}
+    <br>
+    <div class="register-container">
+        name: <input type="text" id="newPlayerName" name="newPlayerName" placeholder="New Player Name">
+        <br>
+        password: <input type="password" id="newPassword" name="newPassword" placeholder="New Password">
+        <br>
+        <button id="registerBtn">register</button>
+    </div>
+    <div class="actions-container">
+        <button id="menuBtn">Main Menu</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='aaaaa.js') }}"></script>
+</body>
+</html>

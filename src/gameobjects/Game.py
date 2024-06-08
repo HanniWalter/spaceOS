@@ -28,11 +28,9 @@ class Game:
 
     def new_game():
         ret = Game()
-        ret.player = Player.Player.new(ret, "main_player")
+        ret.players = []
         ret.initiated = True
 
-        # remove this lines when not longer in testing
-        ret.test_data()
         ret.continue_game()
 
         return ret

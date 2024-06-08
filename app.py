@@ -8,15 +8,43 @@ from io import BytesIO
 import src.gameobjects as gameobjects
 import src.gameobjects.Game as Game
 import src.gameobjects.Spaceship as Spaceship
+import src.gameobjects.Player as Player
 from src.util import docker_manager
 from src.util import map_renderer
+from src.util import local_config_manager
+
 # import game_classes
 # from game_classes import getSavegames, docker_manager
 
 app = Flask(__name__)
+gamemodes = ""
+#"singleplayer"
+#no login no joining running the full backend
+#"multiplayer_host"
+#login and host a game running the full backend
+#"multiplayer_weak_client"
+#login and join a game nearly no backend running
+#"multiplayer_strong_client"
+#login and join a game running docker the backend
+def get_port(gamemode_):  
+    global gamemode
+    gamemode = gamemode_
+    match gamemode:
+        case "singleplayer":
+            port = local_config_manager.config['port_singleplayer']
+            return port
+        case "multiplayer_host":
+            port = local_config_manager.config['port_host_multiplayer']
+            return port
+        case "multiplayer_weak_client":
+            port = local_config_manager.config['port_local_multiplayer']
+            return port
+        case "multiplayer_strong_client":
+            port = local_config_manager.config['port_local_multiplayer']
+            return port
+
 
 game = None
-
 
 def getSavegames():
     savegames = []
@@ -25,8 +53,6 @@ def getSavegames():
     return savegames
 
 ### Flask routes api ###
-
-
 @app.route("/savegames", methods=["GET"])
 def savegames():
     return {"savegames": getSavegames()}
@@ -61,6 +87,19 @@ def savegame():
         game.save_game(savegame_name)
         # return success
         return {"success": True}, 201
+
+@app.route("/registerPlayer", methods=["PUT"])
+def registerPlayer():
+    global game
+    with game.lock:
+        name = request.json["name"]
+        password = request.json["password"]
+        player = Player.Player.new(game_ref=game, name=name, password=password)
+        if player:
+
+            return {"success": True}, 201
+        else:
+            return {"success": False}, 409
 
 
 @app.route("/create_spaceship", methods=["POST"])
@@ -152,8 +191,28 @@ def index():
 
 @app.route("/main_menu")
 def main_menu():
-    return render_template("main_menu.html")
+    return render_template("main_menu.html", gamemode=gamemode)
 
+@app.route("/hostMultiplayer")
+def hostMultiplayer():
+    global game
+    game = Game.Game.new_game()
+    #redirect to playerSelection
+    return redirect(url_for('playerSelection'))
+
+@app.route("/joinMultiplayer")
+def join():
+    return render_template("join_multiplayer.html")
+
+@app.route("/joinGame")
+def joinGame():
+    #redirect to playerSelection
+    return render_template("join_game.html")
+
+@app.route("/playerSelection")
+def playerSelection():
+    global game
+    return render_template("playerSelection.html",game=game)
 
 @app.route("/main")
 def main():
@@ -195,3 +254,11 @@ def ship_factory_template(new_ship):
     else:
         config = game.player.spaceship_factory.spaceship_modification_config
     return render_template("ship_factory.html", game=game, new_ship=new_ship, config = config, ship_factory_information=ship_factory_information)
+
+if __name__ == "__main__":
+    port = get_port("multiplayer_host")
+    app.run(host= "localhost",port=port)    
+if __name__ == "app":
+    print("check port")
+    port = get_port("multiplayer_weak_client")
+    
