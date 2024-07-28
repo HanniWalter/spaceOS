@@ -15,7 +15,6 @@ from src.util import map_renderer
 from src.util import local_config_manager
 from src.util import sessionManager
 
-
 # import game_classes
 # from game_classes import getSavegames, docker_manager
 
@@ -31,6 +30,12 @@ game = None
 admin_password = None
 session_manager = sessionManager.SessionManager()
 
+# if True to avoid prettier being ugly
+if True:
+    import src.routes.login
+    import src.routes.menu
+    import src.routes.savegame
+
 
 def getSavegames():
     savegames = []
@@ -38,19 +43,8 @@ def getSavegames():
         savegames.append(savegame)
     return savegames
 
+
 ### Flask routes api ###
-
-
-@app.route("/savegames", methods=["GET"])
-def savegames():
-    return {"savegames": getSavegames()}
-
-
-# @app.route("/game", methods=["GET"])
-# def game_data():
-#    with game.lock:
-#        return game.to_dict()
-
 
 @app.route("/newgame", methods=["POST"])
 def newgame():
@@ -60,53 +54,6 @@ def newgame():
     admin_password = session_manager.admin_password
     # return success
     return {"success": True, "admin_passwort": admin_password}, 201
-
-
-@app.route("/loadgame", methods=["POST"])
-def loadgame():
-    global game
-    game = Game.Game.load_game("savegame")
-    # return success
-    return {"success": True}, 201
-
-
-@app.route("/savegame", methods=["POST"])
-def savegame():
-    with game.lock:
-        savegame_name = "savegame"
-        game.save_game(savegame_name)
-        # return success
-        return {"success": True}, 201
-
-
-@app.route("/register", methods=["POST"])
-def registerPlayer():
-    global game
-    with game.lock:
-        name = request.json["name"]
-        password = request.json["password"]
-        player = Player.Player.new(game_ref=game, name=name, password=password)
-        if player:
-            session_id = session_manager.new_session(player)
-            return {"success": True, "player_id": player.id, "session_id": session_id}, 201
-        else:
-            return {"success": False, "error": "player already exists"}, 409
-
-
-@app.route("/login", methods=["POST"])
-def login():
-    global game
-    with game.lock:
-        name = request.json["name"]
-        password = request.json["password"]
-        for player in game.players:
-            if player.name == name:
-                if player.login(password):
-                    session_id = session_manager.new_session(player)
-                    return {"success": True, "playerId": player.id, "session_id": session_id}, 200
-                else:
-                    return {"success": False}, 401
-        return {"success": False}, 404
 
 
 @app.route("/create_spaceship", methods=["POST"])
@@ -209,38 +156,6 @@ def get_map():
 
 ### Flask routes web ###
 ## menu routes ##
-
-@app.route("/")
-def index():
-    # redirect to main menu
-    return redirect(url_for('mainMenu'))
-
-
-@app.route("/mainMenu")
-def mainMenu():
-    game_exists = game is not None
-    return render_template("menu/mainMenu.html", game_exists=game_exists)
-
-
-@app.route("/joinGame/<string:local_ip>/<int:local_port>")
-def joinGame(local_ip, local_port):
-    global game
-    players = game.players
-    return render_template("menu/joinGame.html", players=players, local_ip=local_ip, local_port=local_port, admin=False)
-
-
-@app.route("/joinGameAdmin/<string:local_ip>/<int:local_port>/<string:admin_password>")
-def joinGameAdmin(local_ip, local_port, admin_password):
-    if str(admin_password) == str(session_manager.admin_password):
-        return render_template("menu/joinGame.html", local_ip=local_ip, local_port=local_port, admin=True, admin_password=admin_password)
-    else:
-        return "Unauthorized", 401
-
-
-@app.route("/joinMultiplayer")
-def joinMultiplayer():
-    return render_template("menu/joinMultiplayer.html")
-
 
 @app.route("/main")
 def main():
