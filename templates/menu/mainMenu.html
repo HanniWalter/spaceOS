@@ -9,28 +9,16 @@
 </head>
 <body>
     <div class="menu-container">
-        Singleplayer <br>
         {% if game_exists %}
         <button id="newGameBtn" disabled>New Game</button>
         <button id="loadGameBtn" disabled>Load Game</button>
+        <button id="saveGameBtn">Save Game</button>
+        <button id="joinMPBtn" disabled>Join Game</button>
         {% else %}
         <button id="newGameBtn">New Game</button>
         <button id="loadGameBtn">Load Game</button>
-        {% endif %}
-        {% if game_exists %}
-        <button id="saveGameBtn">Save Game</button>
-        {% else %}
         <button id="saveGameBtn" disabled>Save Game</button>
-        {% endif %}
-        multiplayer <br>
-        {% if game_exists %}
-        <button id="newMPBtn" disabled>Host New Game</button>
-        <button id="loadMPBtn" disabled>Load and Host Game</button>
-        <button id="joinMPBtn" disabled>Join Game</button>
-        {% else %}
-        <button id="newMPBtn">Host New Game</button>
-        <button id="loadMPBtn">Load and Host Game</button>
-        <button id="joinMPBtn">Join Game</button>
+        <button id="joinMPBtn" >Join Game</button>
         {% endif %}
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>

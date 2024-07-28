@@ -100,11 +100,12 @@ def login():
         name = request.json["name"]
         password = request.json["password"]
         for player in game.players:
-            if player.login(name, password):
-                session_id = session_manager.new_session(player)
-                return {"success": True, "playerId": player.id, "session_id": session_id}, 200
-            else:
-                return {"success": False}, 401
+            if player.name == name:
+                if player.login(password):
+                    session_id = session_manager.new_session(player)
+                    return {"success": True, "playerId": player.id, "session_id": session_id}, 200
+                else:
+                    return {"success": False}, 401
         return {"success": False}, 404
 
 
@@ -207,6 +208,8 @@ def get_map():
 
 
 ### Flask routes web ###
+## menu routes ##
+
 @app.route("/")
 def index():
     # redirect to main menu
@@ -219,13 +222,11 @@ def mainMenu():
     return render_template("menu/mainMenu.html", game_exists=game_exists)
 
 
-@app.route("/joinGame/<int:local_ip>/<int:local_port>")
-def joinGame():
-    local_ip = request.args.get('local_ip')
-    local_port = request.args.get('local_port')
+@app.route("/joinGame/<string:local_ip>/<int:local_port>")
+def joinGame(local_ip, local_port):
     global game
     players = game.players
-    return render_template("html/joinGame.html", players=players, local_ip=local_ip, local_port=local_port, admin=False)
+    return render_template("menu/joinGame.html", players=players, local_ip=local_ip, local_port=local_port, admin=False)
 
 
 @app.route("/joinGameAdmin/<string:local_ip>/<int:local_port>/<string:admin_password>")
@@ -234,6 +235,11 @@ def joinGameAdmin(local_ip, local_port, admin_password):
         return render_template("menu/joinGame.html", local_ip=local_ip, local_port=local_port, admin=True, admin_password=admin_password)
     else:
         return "Unauthorized", 401
+
+
+@app.route("/joinMultiplayer")
+def joinMultiplayer():
+    return render_template("menu/joinMultiplayer.html")
 
 
 @app.route("/main")
