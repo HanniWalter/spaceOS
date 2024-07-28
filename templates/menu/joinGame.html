@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Game</title>
+    <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    {% if players %}
+        <div id = "loginContainer">
+            play as existing player <br>
+            name <select id="name" name="name" required>
+                {% for player in players%}
+                <option value="{{ player.name }}">{{ player.name }}</option>
+                {% endfor %} <br>
+            password <input type="text" id="password" name="password"> <br>
+            <button id="loginBtn">login</button>    <br>
+        </div>
+        <br>
+    {% endif %}
+    <div id = "registerContainer">
+        register new player <br>
+        name <input type="text" id="name" name="name" required> <br>
+        password <input type="text" id="password" name="password"> <br>
+        <button id="registerBtn">register</button>  <br>
+    </div> 
+    <div id = "secrets" style="display: none;">
+        <div id="local_ip" >{{ local_ip }}</div>
+        <div id="local_port" >{{ local_port }}</div>
+        <div id="admin" >{{ admin }}</div>
+        {% if admin %}
+        <div id="admin_password" >{{ admin_password }}</div>
+        {% endif %}
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="player-container">
-    Player: {{ game.player.name }}  Money: {{ game.player.money }} <br>
+    Player: {{ player.name }}  Money: {{ player.money }} <br>
     </div>
     <br>
     <div class="oss-container">
@@ -25,7 +25,7 @@
     </div>  
     {% endfor %}
     <div class="ships-container">
-    {% for ship in game.player.spaceships %}
+    {% for ship in player.spaceships %}
     <div class="ship-container" id = "{{ ship.id }}">
         {{ ship.id }} | {{ship.name}} |
         os: {{ ship.operating_system.name }} |
@@ -56,6 +56,7 @@
         <button id="newShipBtn">New Ship</button>
         <button id="mapBtn">Map</button>
     </div>
+    
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

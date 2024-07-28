@@ -1,0 +1,87 @@
+function saveSecretsToCookie() {
+    var localIp = $('#secrets #local_ip').text();
+    var localPort = $('#secrets #local_port').text();
+    var admin  = $('#secrets #admin').text();
+    var adminPassword = $('#secrets #admin_password').text();
+    if (localIp){
+        document.cookie = "local_ip=" + localIp + ";path=/" + ";SameSite=Strict";
+    }
+    if (localPort){
+        document.cookie = "local_port=" + localPort + ";path=/" + ";SameSite=Strict";
+    }
+    if (admin){
+        document.cookie = "admin=" + admin + ";path=/" + ";SameSite=Strict";
+    }
+    if (adminPassword){
+        document.cookie = "admin_password=" + adminPassword + ";path=/" + ";SameSite=Strict";
+    }
+}
+
+saveSecretsToCookie();
+$("#newGameBtn").on("click", function () {
+    $.post("/newgame", function (data) {
+        if (data.success) {
+            //getting ip and port from the url
+            var url = window.location.href;
+            var ip = url.split('/')[2].split(':')[0];
+            var port = url.split('/')[2].split(':')[1];
+            if (data.admin_passwort){
+                // open joinGameAdmin with admin_passwort
+                window.location.href = "http://" + ip + ":" + port + "/joinGameAdmin/" + ip + "/" + port+"/"+data.admin_passwort;
+            }else{
+                window.location.href = "http://" + ip + ":" + port + "/joinGame/" + ip + "/" + port;
+            }
+        } else {
+            alert('cannot create new game');
+        }
+    });
+});
+
+function continueToGame(playerid, sessionid){
+    //cookie
+    document.cookie = "playerid=" + playerid + ";path=/" + ";SameSite=Strict";
+    document.cookie = "sessionid=" + sessionid + ";path=/" + ";SameSite=Strict";
+    window.location.href = "/main";
+}
+
+$("#loginContainer #loginBtn").on("click", function () {
+    var name = $("#loginContainer #name").val();
+    var password = $("#loginContainer #password").val();
+    $.ajax({
+        type: 'POST',
+        url: '/login',
+        data: JSON.stringify({name: name, password: password}),
+        contentType: 'application/json',
+        success: function (data) {
+            continueToGame(data.playerid, data.sessionid);
+        },
+        error: function (data) {
+            if (data.status == 401) {
+                alert('wrong password');
+            }
+            if (data.status == 404) {
+                alert('user not found');
+            }
+        }
+    });
+});
+
+$("#registerContainer #registerBtn").on("click", function () {
+    var name = $("#registerContainer #name").val();
+    var password = $("#registerContainer #password").val();
+    //send as json
+    $.ajax({
+        type: 'POST',
+        url: '/register',
+        data: JSON.stringify({name: name, password: password}),
+        contentType: 'application/json',
+        success: function (data) {
+                continueToGame(data.playerid, data.sessionid);
+        },
+        error: function (data) {
+            if (data.status == 409) {
+                alert('user already exists');
+            }
+        }
+    });
+});

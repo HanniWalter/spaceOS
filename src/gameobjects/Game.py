@@ -16,6 +16,7 @@ import src.gameobjects.Game_Object as Game_Object
 import src.gameobjects.Spaceship as Spaceship
 import src.gameobjects.Component as Component
 
+
 class Game:
     def __init__(self):
         self.initiated = False
@@ -30,7 +31,6 @@ class Game:
         ret = Game()
         ret.players = []
         ret.initiated = True
-
         ret.continue_game()
 
         return ret
@@ -47,7 +47,7 @@ class Game:
             r = from_dict(d, None)
             r.continue_game()
             return r
-        
+
     def save_game(self, savegame_name):
         with open("resources/savegames/"+savegame_name, "w") as savegame:
             d = to_dict(self, forced=True)
@@ -55,7 +55,8 @@ class Game:
 
     def update(self, delta: float):
         self.time += delta
-        self.player.update(delta)
+        for player in self.players:
+            player.update(delta)
 
     def loop(self):
         running_time = -2
@@ -81,8 +82,10 @@ class Game:
     def test_data(self):
         ships = []
         for x in range(0, 5):
-            ship = Spaceship.Spaceship.new(game_ref=self, name="Spaceship "+str(x), operating_system="test")
-            self.player.spaceships.append(ship)
+            ship = Spaceship.Spaceship.new(
+                game_ref=self, name="Spaceship "+str(x), operating_system="test")
+            self.players[0].spaceships.append(ship)
+
             ships.append(ship)
             clock = Component.Clock.new(parent=ship, game_ref=self)
             teleporter = Component.Teleporter.new(parent=ship, game_ref=self)
