@@ -21,6 +21,8 @@ class SessionManager():
         return self.sessions[session_id]["permission_level"] == "admin"
 
     def get_player(self, session_id):
+        session_id = int(session_id)
         if session_id not in self.sessions:
             return None
+
         return self.sessions[session_id]["player"]

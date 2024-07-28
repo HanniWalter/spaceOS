@@ -56,10 +56,10 @@ $("#join-game-container #joinGameBtn").on("click", function () {
 });
 
 
-function continueToGame(playerid, sessionid){
+function continueToGame(player_id, session_id){
     //cookie
-    document.cookie = "playerid=" + playerid + ";path=/" + ";SameSite=Strict";
-    document.cookie = "sessionid=" + sessionid + ";path=/" + ";SameSite=Strict";
+    document.cookie = "player_id=" + player_id + ";path=/" + ";SameSite=Strict";
+    document.cookie = "session_id=" + session_id + ";path=/" + ";SameSite=Strict";
     window.location.href = "/main";
 }
 
@@ -72,7 +72,7 @@ $("#loginContainer #loginBtn").on("click", function () {
         data: JSON.stringify({name: name, password: password}),
         contentType: 'application/json',
         success: function (data) {
-            continueToGame(data.playerid, data.sessionid);
+            continueToGame(data.player_id, data.session_id);
         },
         error: function (data) {
             if (data.status == 401) {
@@ -95,7 +95,7 @@ $("#registerContainer #registerBtn").on("click", function () {
         data: JSON.stringify({name: name, password: password}),
         contentType: 'application/json',
         success: function (data) {
-                continueToGame(data.playerid, data.sessionid);
+            continueToGame(data.player_id, data.session_id);
         },
         error: function (data) {
             if (data.status == 409) {
