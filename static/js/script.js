@@ -42,6 +42,10 @@ $("#joinMPBtn").on("click", function () {
     window.location.href = "/joinMultiplayer";
 });
 
+$("#saveGameBtn").on("click", function () {
+    window.location.href = "/saveGameMenu";
+});
+
 $(".actions-container #menuBtn").on("click", function () {
     window.location.href = "/main_menu";
 });
@@ -54,7 +58,6 @@ $("#join-game-container #joinGameBtn").on("click", function () {
     var local_port = url.split('/')[2].split(':')[1];
     window.location.href = "http://" + ip + ":" + port + "/joinGame/" + local_ip + "/" + local_port;
 });
-
 
 function continueToGame(player_id, session_id){
     //cookie
@@ -103,4 +106,43 @@ $("#registerContainer #registerBtn").on("click", function () {
             }
         }
     });
+});
+
+function saveGame(name) {
+    $.ajax({
+        type: 'POST',
+        url: '/getSavegame',
+        data: JSON.stringify({savegame_name: name}),
+        contentType: 'application/json',
+        success: function (data) {
+            if (data.success) {
+                savegame = data.savegame;
+                $.ajax({
+                    type: 'POST',
+                    url: '/saveSavegame',
+                    data: JSON.stringify({savegame: savegame}),
+                    contentType: 'application/json',
+                    success: function (data) {
+                        if (data.success) {
+                            alert('game saved');
+                        } else {
+                            alert('could not save savegame to file');
+                        }
+                    }
+                });
+            } else {
+                alert('could not create savegame');
+            }
+        }
+    });
+}
+
+$("#save-container #OverwriteBtn").on("click", function () {
+    var name = $("#save-container #savegameSelect").val();
+    saveGame(name);
+});
+
+$("#save-container #CreateNewBtn").on("click", function () {
+    var name = $("#save-container #name").val();
+    saveGame(name);
 });

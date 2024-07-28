@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Menu</title>
+    <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="save-container">
+        {% if savegames %}
+        <select id="savegameSelect" name="savegameSelect" required>
+            {% for savegame in savegames %}
+            <option value="{{ savegame }}">{{ savegame }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <button id="OverwirteBtn">Overwrite</button>
+        <br>
+        {% endif %}
+        name <input type="text" id="name" name="name" required> <br>
+        <button id="CreateNewBtn">Save</button>  <br>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

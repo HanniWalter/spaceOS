@@ -20,12 +20,6 @@ from src.util import sessionManager
 
 app = Flask(__name__)
 
-
-def get_port():
-    port = local_config_manager.config['port_singleplayer']
-    return port
-
-
 game = None
 admin_password = None
 session_manager = sessionManager.SessionManager()
@@ -35,13 +29,6 @@ if True:
     import src.routes.login
     import src.routes.menu
     import src.routes.savegame
-
-
-def getSavegames():
-    savegames = []
-    for savegame in glob.glob("resources/savegames/*"):
-        savegames.append(savegame)
-    return savegames
 
 
 ### Flask routes api ###

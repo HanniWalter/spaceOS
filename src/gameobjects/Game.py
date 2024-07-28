@@ -48,10 +48,12 @@ class Game:
             r.continue_game()
             return r
 
-    def save_game(self, savegame_name):
-        with open("resources/savegames/"+savegame_name, "w") as savegame:
-            d = to_dict(self, forced=True)
-            savegame.write(json.dumps(d))
+    def saveGameData(self, savegame_name):
+        ret = {}
+        ret["data"] = to_dict(self, forced=True)
+        ret["time"] = time.time()
+        ret["savegame_name"] = savegame_name
+        return ret
 
     def update(self, delta: float):
         self.time += delta
@@ -120,7 +122,7 @@ def to_dict(obj, forced=False):
             d["type"] = "game_ref"
             return d
 
-    if isinstance(obj, Game_Object):
+    if isinstance(obj, Game_Object.Game_Object):
         if forced:
             d = {}
             d["type"] = "Game_Object"
@@ -163,9 +165,14 @@ def to_dict(obj, forced=False):
         d["type"] = "ndarray"
         d["value"] = obj.tolist()
         return d
+    if isinstance(obj, dict):
+        d = {}
+        d["type"] = "dict"
+        d["value"] = [[key, value] for key, value in obj.items()]
+        return d
 
     print("unknown type:", type(obj), obj)
-    assert False, "something went wrong"
+    assert False, "unknown type:" + type(obj) + "" + str(obj)
 
 # you may ask what is no_ref for?
 # it is for the loading of the game; first all objects are created without references
@@ -220,6 +227,8 @@ def from_dict(d, game_ref, no_ref=False, only_ref=False):
         return docker_manager.get_os_path(d["value"])
     if d["type"] == "ndarray":
         return np.array(d["value"])
+    if d["type"] == "dict":
+        return {key: value for [key, value] in d["value"]}
     print(d["type"])
 
     assert False, "something went wrong"
@@ -235,7 +244,3 @@ if __name__ == "__main__":
     game.stopped = True
     game = from_dict(d, None)
     game.continue_game()
-
-    from src.util import map_renderer
-
-    map_renderer.show_map(game)
