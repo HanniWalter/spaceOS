@@ -41,12 +41,12 @@ class Game:
     def stop_game(self):
         self.stopped = True
 
-    def load_game(savegame_name):
-        with open("resources/savegames/"+savegame_name, "r") as savegame:
-            d = json.loads(savegame.read())
-            r = from_dict(d, None)
-            r.continue_game()
-            return r
+    def load_game(savegame):
+        data = savegame["data"]
+        print(data)
+        r = from_dict(data, None)
+        r.continue_game()
+        return r
 
     def saveGameData(self, savegame_name):
         ret = {}
@@ -168,7 +168,8 @@ def to_dict(obj, forced=False):
     if isinstance(obj, dict):
         d = {}
         d["type"] = "dict"
-        d["value"] = [[key, value] for key, value in obj.items()]
+        d["value"] = [[to_dict(key), to_dict(value)]
+                      for key, value in obj.items()]
         return d
 
     print("unknown type:", type(obj), obj)
@@ -205,7 +206,10 @@ def from_dict(d, game_ref, no_ref=False, only_ref=False):
             r = game_ref.objects[d["value"]["id"]["value"]]
         else:
             cls = d["class"]
-            r = globals()[cls](game_ref=game_ref, silent=True)
+            # error global[cls] returns the module not the class
+            module = globals()[cls]
+            module_dict = module.__dict__
+            r = module_dict[cls](game_ref=game_ref, silent=True)
         for key in d["value"]:
             r.__dict__[key] = from_dict(
                 d["value"][key], game_ref, no_ref=no_ref, only_ref=only_ref)
@@ -228,7 +232,7 @@ def from_dict(d, game_ref, no_ref=False, only_ref=False):
     if d["type"] == "ndarray":
         return np.array(d["value"])
     if d["type"] == "dict":
-        return {key: value for [key, value] in d["value"]}
+        return {from_dict(key): from_dict(value) for [key, value] in d["value"]}
     print(d["type"])
 
     assert False, "something went wrong"

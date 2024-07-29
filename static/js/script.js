@@ -17,6 +17,11 @@ function saveSecretsToCookie() {
     }
 }
 
+function getCookie(name) {
+    var value = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return value ? value[2] : null;
+}
+
 saveSecretsToCookie();
 
 $("#newGameBtn").on("click", function () {
@@ -46,8 +51,12 @@ $("#saveGameBtn").on("click", function () {
     window.location.href = "/saveGameMenu";
 });
 
+$("#loadGameBtn").on("click", function () {
+    window.location.href = "/loadGameMenu";
+});
+
 $(".actions-container #menuBtn").on("click", function () {
-    window.location.href = "/main_menu";
+    window.location.href = "/mainMenu";
 });
 
 $("#join-game-container #joinGameBtn").on("click", function () {
@@ -108,6 +117,36 @@ $("#registerContainer #registerBtn").on("click", function () {
     });
 });
 
+savegameselector = $("#savegame-select-container");
+if (savegameselector.length) {
+    var local_ip = getCookie('local_ip');
+    var local_port = getCookie('local_port');
+    var url = "http://" + local_ip + ":" + local_port + "/getSavegameData";
+    $.ajax({
+        type: 'GET',
+        url: url,
+        contentType: 'application/json',
+        success: function (data) {
+            if (data.success) {
+                var savegames = data.savegame_data;
+                if (savegames.length == 0) {
+                    //hide savegame selector
+                    savegameselector.hide();
+                }
+                else {
+                    $("#nogame-container").hide();
+                    savegames.forEach(function (savegame) {
+                        $("#savegame-select-container #savegameSelect").append('<option value="' + savegame.name + '">' + savegame.name + '</option>');
+                    });
+                }
+            }
+        },
+        error: function (data) {
+            alert('could not get savegames');
+        }
+    });
+};
+
 function saveGame(name) {
     $.ajax({
         type: 'POST',
@@ -117,14 +156,18 @@ function saveGame(name) {
         success: function (data) {
             if (data.success) {
                 savegame = data.savegame;
+                localIp = getCookie('local_ip');
+                localPort = getCookie('local_port');
+                localurl = "http://"+localIp + ":" + localPort + "/saveSavegame";
                 $.ajax({
                     type: 'POST',
-                    url: '/saveSavegame',
+                    url: localurl,
                     data: JSON.stringify({savegame: savegame}),
                     contentType: 'application/json',
                     success: function (data) {
                         if (data.success) {
                             alert('game saved');
+                            window.location.href = "/mainMenu";
                         } else {
                             alert('could not save savegame to file');
                         }
@@ -137,12 +180,31 @@ function saveGame(name) {
     });
 }
 
-$("#save-container #OverwriteBtn").on("click", function () {
+$("#save-container #overwirteBtn").on("click", function () {
+    alert("overwrite");
     var name = $("#save-container #savegameSelect").val();
     saveGame(name);
 });
 
-$("#save-container #CreateNewBtn").on("click", function () {
+$("#save-container #createNewBtn").on("click", function () {
     var name = $("#save-container #name").val();
     saveGame(name);
 });
+
+$("#load-container #loadGameBtn").on("click", function () {
+    var name = $("#load-container #savegameSelect").val();
+    // /loadGame
+    $.ajax({
+        type: 'POST',
+        url: '/loadGame',
+        data: JSON.stringify({savegame_name: name}),
+        contentType: 'application/json',
+        success: function (data) {
+            if (data.success) {
+                window.location.href = "/main";
+            } else {
+                alert("can't load savegame");
+            }
+        }
+    });
+    })

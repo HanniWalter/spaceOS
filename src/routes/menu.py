@@ -1,6 +1,5 @@
 import app
 from flask import render_template, redirect, url_for
-import glob
 
 
 @app.app.route("/")
@@ -15,19 +14,14 @@ def mainMenu():
     return render_template("menu/mainMenu.html", game_exists=game_exists)
 
 
-def getSavegames():
-    savegames = []
-    for savegame in glob.glob("resources/savegames/*"):
-        savegame = savegame.split("/")[-1]
-        savegame = savegame.split("\\")[-1]
-        savegames.append(savegame)
-    return savegames
-
-
 @app.app.route("/saveGameMenu")
 def saveGameMenu():
-    savegames = getSavegames()
-    return render_template("menu/saveGameMenu.html", savegames=savegames)
+    return render_template("menu/saveGameMenu.html")
+
+
+@app.app.route("/loadGameMenu")
+def loadGameMenu():
+    return render_template("menu/loadGameMenu.html")
 
 
 @app.app.route("/joinGame/<string:local_ip>/<int:local_port>")

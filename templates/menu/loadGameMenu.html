@@ -9,16 +9,17 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div id="save-container">
+    <div id="load-container">
         <div id = "savegame-select-container">
             <select id="savegameSelect" name="savegameSelect" required>
             </select>
             <br>
-            <button id="overwirteBtn">Overwrite</button>
+            <button id="loadGameBtn">loadgame</button>
             <br>
         </div>
-        name <input type="text" id="name" name="name" required> <br>
-        <button id="createNewBtn">Save</button>  <br>
+    </div>
+    <div id = nogame-container>
+        <p>No saved games found</p>
     </div>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
