@@ -14,7 +14,12 @@ from src.util import local_config_manager
 
 # start docker client
 
-client = docker.from_env()
+try:
+    client = docker.from_env()
+except Exception as e:
+    print("Could not connect to docker daemon")
+    print(e)
+    exit(1)
 oss = []
 
 
