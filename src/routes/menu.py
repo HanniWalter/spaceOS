@@ -41,3 +41,8 @@ def joinGameAdmin(local_ip, local_port, admin_password):
 @app.app.route("/joinMultiplayer")
 def joinMultiplayer():
     return render_template("menu/joinMultiplayer.html")
+
+
+@app.app.route("/deleteGameConfirmation")
+def deleteGameConfirmation():
+    return render_template("menu/deleteConfirmation.html")

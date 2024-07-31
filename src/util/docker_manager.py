@@ -12,6 +12,8 @@ from src.util import local_config_manager
 # with open("resources/settings.yaml", "r") as f:
 #    settings = yaml.safe_load(f)["settings"]
 
+# start docker client
+
 client = docker.from_env()
 oss = []
 

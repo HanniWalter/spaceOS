@@ -67,6 +67,10 @@ $("#menu-container #loadGameBtn").on("click", function () {
 });
 
 $("#menu-container #deleteGameBtn").on("click", function () {
+    window.location.href = "/deleteGameConfirmation";
+});
+
+$("#delete-container #deleteGameBtn").on("click", function () {
     $.post("/deleteGame", function (data) {
         if (data.success) {
             alert('game deleted');

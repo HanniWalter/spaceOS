@@ -14,6 +14,5 @@ def newgame():
 
 @app.app.route("/deleteGame", methods=["POST"])
 def deleteGame():
-
     app.game = None
     return {"success": True}, 201
