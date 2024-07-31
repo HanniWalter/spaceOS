@@ -29,18 +29,9 @@ if True:
     import src.routes.login
     import src.routes.menu
     import src.routes.savegame
-
+    import src.routes.gamemanagment
 
 ### Flask routes api ###
-
-@app.route("/newgame", methods=["POST"])
-def newgame():
-    global game
-    game = Game.Game.new_game()
-    # create random admin passwort
-    admin_password = session_manager.admin_password
-    # return success
-    return {"success": True, "admin_passwort": admin_password}, 201
 
 
 @app.route("/create_spaceship", methods=["POST"])

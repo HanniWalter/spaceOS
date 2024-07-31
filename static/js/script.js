@@ -24,6 +24,17 @@ function getCookie(name) {
 
 saveSecretsToCookie();
 
+$("#continueGameBtn").on("click", function () {
+    player_id = getCookie('player_id');
+    session_id = getCookie('session_id');
+    if (player_id){
+        window.location.href = "/main";
+    }
+    else{
+        window.location.href = "/loginMenu";   
+    }
+});
+
 $("#newGameBtn").on("click", function () {
     $.post("/newgame", function (data) {
         if (data.success) {
@@ -51,9 +62,21 @@ $("#saveGameBtn").on("click", function () {
     window.location.href = "/saveGameMenu";
 });
 
-$("#loadGameBtn").on("click", function () {
+$("#menu-container #loadGameBtn").on("click", function () {
     window.location.href = "/loadGameMenu";
 });
+
+$("#menu-container #deleteGameBtn").on("click", function () {
+    $.post("/deleteGame", function (data) {
+        if (data.success) {
+            alert('game deleted');
+            window.location.href = "/mainMenu";
+        } else {
+            alert('could not delete game');
+        }
+    });	
+});  
+
 
 $(".actions-container #menuBtn").on("click", function () {
     window.location.href = "/mainMenu";
@@ -201,10 +224,12 @@ $("#load-container #loadGameBtn").on("click", function () {
         contentType: 'application/json',
         success: function (data) {
             if (data.success) {
-                window.location.href = "/main";
+                ip = getCookie('local_ip');
+                port = getCookie('local_port');
+                window.location.href = "http://" + ip + ":" + port + "/joinGame/" + ip + "/" + port;
             } else {
                 alert("can't load savegame");
             }
         }
     });
-    })
+})

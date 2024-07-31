@@ -2,9 +2,9 @@
 import threading
 import time
 import json
-
+import glob
 import numpy as np
-
+import importlib
 if __name__ == "__main__":
     import sys
     sys.path.append(".")
@@ -15,6 +15,32 @@ import src.gameobjects.Player as Player
 import src.gameobjects.Game_Object as Game_Object
 import src.gameobjects.Spaceship as Spaceship
 import src.gameobjects.Component as Component
+
+
+def isSubclass(obj, cls):
+    if obj == cls:
+        return True
+    for base in obj.__bases__:
+        if isSubclass(base, cls):
+            return True
+    return False
+
+
+allclasses = {}
+for file in glob.glob("src/gameobjects/*.py"):
+    if file == "src/gameobjects/Game.py":
+        continue
+    if file == "src/gameobjects/__init__.py":
+        continue
+    module = importlib.import_module(
+        file.replace("/", ".").replace("\\", ".")[:-3])
+    # get classes from module only include subclasses of Game_Object
+    for name, obj in module.__dict__.items():
+        # check is class
+        if isinstance(obj, type):
+            if isSubclass(obj, Game_Object.Game_Object):
+                allclasses[name] = obj
+            #
 
 
 class Game:
@@ -43,7 +69,6 @@ class Game:
 
     def load_game(savegame):
         data = savegame["data"]
-        print(data)
         r = from_dict(data, None)
         r.continue_game()
         return r
@@ -207,9 +232,7 @@ def from_dict(d, game_ref, no_ref=False, only_ref=False):
         else:
             cls = d["class"]
             # error global[cls] returns the module not the class
-            module = globals()[cls]
-            module_dict = module.__dict__
-            r = module_dict[cls](game_ref=game_ref, silent=True)
+            r = allclasses[cls](game_ref=game_ref, silent=True)
         for key in d["value"]:
             r.__dict__[key] = from_dict(
                 d["value"][key], game_ref, no_ref=no_ref, only_ref=only_ref)
@@ -232,7 +255,7 @@ def from_dict(d, game_ref, no_ref=False, only_ref=False):
     if d["type"] == "ndarray":
         return np.array(d["value"])
     if d["type"] == "dict":
-        return {from_dict(key): from_dict(value) for [key, value] in d["value"]}
+        return {from_dict(key, game_ref, no_ref, only_ref): from_dict(value, game_ref, no_ref, only_ref) for [key, value] in d["value"]}
     print(d["type"])
 
     assert False, "something went wrong"

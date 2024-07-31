@@ -8,17 +8,21 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="menu-container">
+    <div id="menu-container">
         {% if game_exists %}
+        <button id="continueGameBtn">Continue Game</button>
         <button id="newGameBtn" disabled>New Game</button>
         <button id="loadGameBtn" disabled>Load Game</button>
         <button id="saveGameBtn">Save Game</button>
         <button id="joinMPBtn" disabled>Join Game</button>
+        <button id="deleteGameBtn">Leave Game</button>
         {% else %}
+        <button id="continueGameBtn" disabled>Continue Game</button>
         <button id="newGameBtn">New Game</button>
         <button id="loadGameBtn">Load Game</button>
         <button id="saveGameBtn" disabled>Save Game</button>
         <button id="joinMPBtn" >Join Game</button>
+        <button id="deleteGameBtn" disabled>Leave Game</button>
         {% endif %}
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
